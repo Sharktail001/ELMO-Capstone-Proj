@@ -38,13 +38,13 @@ export async function GET() {
                     console.log(`Failed to extract content for: ${article.title}`);
                 }
             } catch (err) {
-                console.error(`Error fetching article HTML: ${article.url}`, err.message);
+                console.error(`Error fetching article HTML: ${article.url}`, (err as any).message);
             }
         }
 
         return NextResponse.json(extractedArticles);
     } catch (error) {
-        console.error("Error fetching news articles:", error.message);
+        console.error("Error fetching news articles:", (error as Error).message);
         return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 });
     }
 }
