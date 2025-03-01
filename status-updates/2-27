@@ -1,0 +1,55 @@
+Week: 2/20-2/27 
+
+Team Leader: Avanthi 
+
+Team Member # 1: Avanthi 
+Hours Worked: 6 hours
+Tasks Completed: 
+Worked on finishing the UI and improved it
+Ensure that every component of the MVP is carefully thought out and is included in the high-fidelity wireframe and make final edits 
+Edited the proposal (the overview and weekly timeline)
+Tasks for Next Week: 
+Continue cleaning up the wireframes 
+Start coding the main homepage once the user logs in 
+
+Team Member # 2: Abel
+Hours Worked: 5 hours
+Tasks Completed: 
+Set up Cognito and configured basic User Auth
+Created 4 Tables in DynamoDB: User Table, Articles Table, Saved Articles Table, Curated Articles Table
+Linked DynamoDB User Table with Cognito via Lambda function
+Resolved AWS IAM access issues
+Tasks for Next Week: 
+Research into News APIs. Gather more data from them and slowly start implementing API requests while also populating the Tables
+Connect Cognito with the frontend Login Page
+Research into Deepseek implementation and article curation
+
+Team Member # 3: Shaz
+Hours Worked: 4 hours
+Tasks Completed: 
+Landing page still a work in progress
+Worked on UI/mockups
+Working on getting the model running and the generate article working
+Tasks for Next Week: 
+Continue working on UI
+Start coding in next.js
+Look into hosting LLM on PC temporarily
+
+Team Member # 4: Kshitij
+Hours Worked: 5 hours
+Tasks Completed: 
+Implemented a fully functional NewsAPI integration, extracting and scraping article content using the Readability library and jsdom
+Conducted in-depth research on Docker for containerizing the application
+Tasks for Next Week: 
+Create a Dockerfile to explore the possibility of using Docker
+Assist with AWS Cognito integration and implement a fully functional, user-centered login page
+
+Team Member # 5: Isaac
+Hours Worked: 3.5 hours
+Tasks Completed: 
+Helped with Cognito setup and configuration, integrating Cognito into Node.js
+Linked DynamoDB with Cognito via lambda function
+Resolved AWS IAM access issues
+Tasks for Next Week: 
+Integrate AWS Cognito with front-end
+Conduct API testing and research AI application
