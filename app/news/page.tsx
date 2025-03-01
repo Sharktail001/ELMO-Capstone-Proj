@@ -1,17 +1,62 @@
-"use client"
-import React, { useEffect } from "react";
+"use client";
+import React, { useState } from "react";
 
 export default function News() {
-  useEffect(() => {
-    // Fetch data from your API route
-    fetch("/api/news")
-      .then((res) => res.json())
-      .then((data) => {
-        // Log the data in the browser console
-        console.log("Fetched News Data:", data);
-      })
-      .catch((error) => console.error("Error fetching news:", error));
-  }, []);
+  const [query, setQuery] = useState(""); // Default query
+  type Article = {
+    title: string;
+    content: string;
+    url: string;
+  };
 
-  return <div>Check the console for the news data!</div>;
+  const [newsData, setNewsData] = useState<Article[]>([]);
+
+  const fetchNews = async (searchQuery: string) => {
+    try {
+      const response = await fetch("/api/news", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: searchQuery }),
+      });
+      const data = await response.json();
+      console.log("Fetched News Data:", data);
+      setNewsData(data);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
+  };
+
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const searchQuery = formData.get("query") as string;
+    setQuery(searchQuery);
+    fetchNews(searchQuery);
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleSearch}>
+        <input type="text" name="query" placeholder="Search news..." />
+        <button type="submit">Search</button>
+      </form>
+      <div>
+        {newsData.length > 0 ? (
+          newsData.map((article, index) => (
+            <div key={index}>
+              <h3>{article.title}</h3>
+              <p>{article.content}</p>
+              <a href={article.url} target="_blank" rel="noopener noreferrer">
+                Read more
+              </a>
+            </div>
+          ))
+        ) : (
+          <p>No news articles found.</p>
+        )}
+      </div>
+    </div>
+  );
 }

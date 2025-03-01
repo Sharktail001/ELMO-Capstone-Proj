@@ -4,47 +4,48 @@ import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
 
 const API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY;
-const query = "Apple"; // Change this to any topic
 
-export async function GET() {
-    try {
-        // Fetch articles from NewsAPI
-        const newsUrl = `https://newsapi.org/v2/everything?q=${query}&language=en&domains=cnn.com&sortBy=publishedAt&apiKey=${process.env.NEXT_PUBLIC_NEWS_API_KEY}`;
-        const newsResponse = await axios.get(newsUrl);
-        const articles = newsResponse.data.articles.slice(0, 5); // Get the first 5 articles
+export async function POST(request: Request) {
+  const { query } = await request.json();
 
-        let extractedArticles = [];
+  try {
+    // Fetch articles from NewsAPI
+    const newsUrl = `https://newsapi.org/v2/everything?q=${query}&language=en&domains=cnn.com&sortBy=publishedAt&apiKey=${API_KEY}`;
+    const newsResponse = await axios.get(newsUrl);
+    const articles = newsResponse.data.articles.slice(0, 5); // Get the first 5 articles
 
-        for (const article of articles) {
-            try {
-                console.log(`Fetching article: ${article.title}`);
+    let extractedArticles = [];
 
-                // Fetch full article HTML
-                const articleResponse = await axios.get(article.url);
+    for (const article of articles) {
+      try {
+        console.log(`Fetching article: ${article.title}`);
 
-                // Convert HTML to a DOM object
-                const dom = new JSDOM(articleResponse.data, { url: article.url });
+        // Fetch full article HTML
+        const articleResponse = await axios.get(article.url);
 
-                // Extract readable content
-                let parsedArticle = new Readability(dom.window.document).parse();
+        // Convert HTML to a DOM object
+        const dom = new JSDOM(articleResponse.data, { url: article.url });
 
-                if (parsedArticle) {
-                    extractedArticles.push({
-                        title: article.title,
-                        url: article.url,
-                        content: parsedArticle.textContent.trim(),
-                    });
-                } else {
-                    console.log(`Failed to extract content for: ${article.title}`);
-                }
-            } catch (err) {
-                console.error(`Error fetching article HTML: ${article.url}`, (err as any).message);
-            }
+        // Extract readable content
+        let parsedArticle = new Readability(dom.window.document).parse();
+
+        if (parsedArticle) {
+          extractedArticles.push({
+            title: article.title,
+            url: article.url,
+            content: parsedArticle.textContent.trim(),
+          });
+        } else {
+          console.log(`Failed to extract content for: ${article.title}`);
         }
-
-        return NextResponse.json(extractedArticles);
-    } catch (error) {
-        console.error("Error fetching news articles:", (error as Error).message);
-        return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 });
+      } catch (err) {
+        console.error(`Error fetching article HTML: ${article.url}`, (err as any).message);
+      }
     }
+
+    return NextResponse.json(extractedArticles);
+  } catch (error) {
+    console.error("Error fetching news articles:", (error as Error).message);
+    return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 });
+  }
 }
