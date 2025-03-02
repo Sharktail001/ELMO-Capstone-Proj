@@ -17,6 +17,12 @@ export default function LoginPage() {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <LoginForm />
+            <a
+              href="/dashboard"
+              className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded text-center block"
+            >
+              Admin Login
+            </a>
           </div>
         </div>
       </div>
