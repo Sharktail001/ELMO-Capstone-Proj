@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/login-form";
 import { SignupForm } from "@/components/signup-form";
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function AuthenticationPage() {
   const [isLogin, setIsLogin] = useState(false);
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
