@@ -1,73 +1,39 @@
-"use client";
-
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signInUser } from '@/lib/amplifyConfig';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm({
+export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const router = useRouter();
-
-  const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault();
-    try {
-      const result = await signInUser(username, password);
-      if (result) {
-        router.push('/dashboard');
-      }
-    } catch (error) {
-      console.error("Error during login:", error);
-    }
-  };
-
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleLogin}>
+    <form className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Login to your account</h1>
+        <h1 className="text-2xl font-bold">Create a new account</h1>
         <p className="text-balance text-sm text-muted-foreground">
-          Enter your email below to login to your account
+          Enter your details below to create a new account
         </p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+          <Label htmlFor="full-name">Full Name</Label>
+          <Input id="full-name" type="text" placeholder="John Doe" required />
         </div>
         <div className="grid gap-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
-          </div>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" placeholder="m@example.com" required />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" type="password" required />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="confirm-password">Confirm Password</Label>
+          <Input id="confirm-password" type="password" required />
         </div>
         <Button type="submit" className="w-full">
-          Login
+          Sign Up
         </Button>
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">
