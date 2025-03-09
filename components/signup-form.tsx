@@ -1,14 +1,45 @@
+import { useState } from "react";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signUpUser } from "@/lib/amplifyConfig";
 
 export function SignupForm({
   className,
+  onSusChange,
   ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+}: React.ComponentPropsWithoutRef<"form"> & { onSusChange?: (status: boolean) => void }) {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const router = useRouter();
+  const [Sus, setSus] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    try {
+      const user = await signUpUser(fullName, password, { email });
+      if (user) {
+        setSus(true);
+        if (onSusChange) {
+          onSusChange(true);
+        }
+      }
+      console.log("User signed up successfully:", user);
+    } catch (error) {
+      console.error("Error during signup:", error);
+    }
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create a new account</h1>
         <p className="text-balance text-sm text-muted-foreground">
@@ -18,19 +49,45 @@ export function SignupForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="full-name">Full Name</Label>
-          <Input id="full-name" type="text" placeholder="John Doe" required />
+          <Input
+            id="full-name"
+            type="text"
+            placeholder="John Doe"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="confirm-password">Confirm Password</Label>
-          <Input id="confirm-password" type="password" required />
+          <Input
+            id="confirm-password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
         </div>
         <Button type="submit" className="w-full">
           Sign Up

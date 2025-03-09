@@ -7,7 +7,13 @@ import { SignupForm } from "@/components/signup-form";
 import { useState } from "react";
 
 export default function AuthenticationPage() {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [Sus, setSus] = useState(false);
+
+  const handleSusChange = (status: boolean) => {
+    setSus(status);
+  };
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -36,7 +42,7 @@ export default function AuthenticationPage() {
               </>
             ) : (
               <>
-                <SignupForm />
+                <SignupForm onSusChange={handleSusChange} />
                 <div className="mt-4 text-center text-sm">
                   Already have an account?{" "}
                   <button

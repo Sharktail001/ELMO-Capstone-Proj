@@ -47,7 +47,7 @@ export function NavUser({
   const handleLogout = async () => {
     try {
       await signOutUser();
-      router.push('/login'); // Redirect to the login page after logout
+      router.push("/");
     } catch (error) {
       console.error("Error during logout:", error);
     }
