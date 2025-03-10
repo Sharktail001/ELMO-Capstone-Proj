@@ -18,15 +18,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Search, ArrowRight } from "lucide-react";
+import { useChat } from "ai/react";
+import Image from "next/image";
 import { useState } from "react";
+import ChatPage from "../chat-page/page";
 
-export default function Page() {
+export default function DashboardPage() {
   const [inputValue, setInputValue] = useState("");
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center bg-light gap-2">
+        <ChatPage />
+        {/* <main className="flex h-16 shrink-0 items-center bg-light gap-2">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -46,38 +51,41 @@ export default function Page() {
           </div>
         </header>
         <main className="flex-grow container w-full px-4 py-8 mx-auto bg-light">
-          {/* Search input integrated into main content */}
           <div className="mb-12">
             <div className="relative max-w-3xl mx-auto">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                className="pl-10 pr-12 py-6 text-lg rounded-xl border-gray-300 shadow-sm bg-white focus:border-[#FF7E77] focus:ring focus:ring-[#FF7E77] focus:ring-opacity-20"
-                placeholder="What would you like to learn about today?"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <ArrowRight
-                className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-6 w-6 transition-all duration-200 ease-in-out cursor-pointer ${
-                  inputValue
-                    ? "opacity-100 translate-x-0"
-                    : "opacity-0 -translate-x-4"
-                }`}
-                style={{ color: "#FF7E77" }}
-              />
+              <form>
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  className="pl-10 pr-12 py-6 text-lg rounded-xl border-gray-300 shadow-sm bg-white focus:border-[#FF7E77] focus:ring focus:ring-[#FF7E77] focus:ring-opacity-20"
+                  placeholder="What would you like to learn about today?"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <button
+                  type="submit"
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-6 w-6 transition-all duration-200 ease-in-out cursor-pointer ${
+                    inputValue
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-4"
+                  }`}
+                  style={{ color: "#FF7E77" }}
+                >
+                  <ArrowRight />
+                </button>
+              </form>
             </div>
           </div>
 
-          {/* Latest Articles section */}
           <div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">
               Latest Articles
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Article 1 */}
               <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
                 <div className="h-48 bg-gray-200 relative">
-                  <img
+                  <Image
+                    fill={true}
                     src="/placeholder.svg?height=192&width=384"
                     alt="AI and Machine Learning"
                     className="w-full h-full object-cover"
@@ -103,10 +111,10 @@ export default function Page() {
                 </CardFooter>
               </Card>
 
-              {/* Article 2 */}
               <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
                 <div className="h-48 bg-gray-200 relative">
-                  <img
+                  <Image
+                    fill={true}
                     src="/placeholder.svg?height=192&width=384"
                     alt="Data Science"
                     className="w-full h-full object-cover"
@@ -132,10 +140,10 @@ export default function Page() {
                 </CardFooter>
               </Card>
 
-              {/* Article 3 */}
               <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
                 <div className="h-48 bg-gray-200 relative">
-                  <img
+                  <Image
+                    fill={true}
                     src="/placeholder.svg?height=192&width=384"
                     alt="Natural Language Processing"
                     className="w-full h-full object-cover"
@@ -161,10 +169,10 @@ export default function Page() {
                 </CardFooter>
               </Card>
 
-              {/* Article 4 */}
               <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
                 <div className="h-48 bg-gray-200 relative">
-                  <img
+                  <Image
+                    fill={true}
                     src="/placeholder.svg?height=192&width=384"
                     alt="Computer Vision"
                     className="w-full h-full object-cover"
@@ -190,10 +198,10 @@ export default function Page() {
                 </CardFooter>
               </Card>
 
-              {/* Article 5 */}
               <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
                 <div className="h-48 bg-gray-200 relative">
-                  <img
+                  <Image
+                    fill={true}
                     src="/placeholder.svg?height=192&width=384"
                     alt="Reinforcement Learning"
                     className="w-full h-full object-cover"
@@ -219,10 +227,10 @@ export default function Page() {
                 </CardFooter>
               </Card>
 
-              {/* Article 6 */}
               <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
                 <div className="h-48 bg-gray-200 relative">
-                  <img
+                  <Image
+                    fill={true}
                     src="/placeholder.svg?height=192&width=384"
                     alt="AI Ethics"
                     className="w-full h-full object-cover"
@@ -249,7 +257,7 @@ export default function Page() {
               </Card>
             </div>
           </div>
-        </main>
+        </main> */}
       </SidebarInset>
     </SidebarProvider>
   );
