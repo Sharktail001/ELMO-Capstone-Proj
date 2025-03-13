@@ -1,0 +1,49 @@
+Week: 3/9-3/14 
+
+Team Leader: Avanthi 
+
+Team Member # 1: Avanthi 
+Hours Worked: 8 hours
+Tasks Completed: 
+Registration page
+Started working on the article page 
+Tasks for next week: 
+Work on finishing article page and article view page
+
+
+Team Member # 2: Abel
+Hours Worked: 10 hours
+Tasks Completed: 
+Cognito is fully set up with both sign up and login creation and fully integrated with frontend
+Researched into more API and working with Article Querying
+Tasks for next week:
+Finish API research
+Implement Article Querying with AI
+Fix up Database input values
+
+Team Member # 3: Shaz
+Hours Worked: 9 hours
+Tasks Completed: 
+Make the search bar work
+Figure out how to display AI Generated article the same as a regular article.
+Tasks for next week:
+Make the search bar work
+Figure out how to display AI Generated article the same as a regular article.
+
+Team Member #4: Kshitij
+Hours Worked: 9 hours
+Tasks Completed:
+Implemented a sidebar
+Improved user flow by organizing pages in Figma for better visualization
+Tasks for Next Week:
+Integrate the sidebar across all pages
+Ensure smooth navigation by linking all pages to the sidebar
+
+
+Team Member # 5: Isaac
+Hours Worked: 7 hours
+Tasks Completed: 
+Spent time unifying direction of AI implementation and testing user experience.
+Looking into url to markdown/json apis
+Tasks for next week:
+integrate api’s into database to populate and pass information to AI model
