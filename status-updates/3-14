@@ -24,11 +24,12 @@ Fix up Database input values
 Team Member # 3: Shaz
 Hours Worked: 9 hours
 Tasks Completed: 
-Make the search bar work
-Figure out how to display AI Generated article the same as a regular article.
+Training the model on data based on the query sent.
+Made the AI output conisistently in an article format
 Tasks for next week:
 Make the search bar work
 Figure out how to display AI Generated article the same as a regular article.
+
 
 Team Member #4: Kshitij
 Hours Worked: 9 hours
