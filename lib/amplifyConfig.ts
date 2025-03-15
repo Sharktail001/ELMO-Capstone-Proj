@@ -4,12 +4,20 @@ import { signIn, signOut, signUp, confirmSignUp } from 'aws-amplify/auth';
 const poolId = process.env.AWS_POOL_ID;
 const userPoolClientId = process.env.AWS_POOL_CLIENT_ID;
 
-// Correct Amplify v6+ configuration
+// Amplify.configure({
+//   Auth: {
+//     Cognito: {
+//       userPoolId: "us-east-1_Wh2rJhtYN",
+//       userPoolClientId: "5p32rcqgnak4fq3cl1gv63jp3q",
+//     }
+//   }
+// });
+
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: String(poolId),
-      userPoolClientId: String(userPoolClientId),
+      userPoolId: "us-east-1_Wh2rJhtYN",
+      userPoolClientId: "5p32rcqgnak4fq3cl1gv63jp3q",
     }
   }
 });
@@ -28,7 +36,7 @@ export const signOutUser = async () => {
   try {
     await signOut();
     console.log("Logged out successfully");
-  } catch (error) { 
+  } catch (error) {
     console.error("Error during logout:", error);
   }
 };
