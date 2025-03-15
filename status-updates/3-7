@@ -1,0 +1,63 @@
+Week: 2/27-3/7 
+
+Team Leader: Avanthi 
+
+Team Member # 1: Avanthi 
+Hours Worked: 9.5 hours
+Tasks Completed: 
+Made final edits to the UI 
+Worked on coding the frontend of the scrollable function area of the login page 
+Worked on coding the returning users page
+Worked on coding the new users page
+Tasks for Next Week: 
+Adjust the fonts appropriatley
+Work on coding the registration page and explore page section
+
+Team Member # 2: Abel
+Hours Worked: 9 hours
+Tasks Completed: 
+Tested NewAPI and found it untrustworthy in using user query to return relevant article
+Researched into looking for new API and found Google Search API to be more accurate and have more filtering options for the user
+Utilized a library to help with cleaning article HTML tags and other irrelevant information from so to only retain important info
+Looked into Cognito Frontend Integeration for Login. Ran into a couple issues with cognito being deprecated with Next.js but I believe I was able to find some work around to make it work
+Tasks for Next Week: 
+Finish linking Cognito with Frontend. Set up the login and signup connection
+Connect the Article API with the database and with the AI model
+Start linking the Backend with Frontend components
+Research into more article cleaning and creation
+
+Team Member # 3: Shaz
+Hours Worked: 12 hours
+Tasks Completed: 
+Finished setting up Ollama server and Ngrok tunnel so we can access the local LLM from any network
+Set up the AI stream on the Dashboard to have an input and an output
+configured the output to compartmentalize the thinking process of the AI output and formatting the output into proper markdown format
+Tasks for Next Week: 
+Once database as been populated, figure out how to display each article on every page.
+Train the model on data based on the query sent. Ex. someone searches 'tesla', it send a request to the api to get every article that mentions Tesla, and feed that to the AI and have it generate an article from that trained data.
+Figure out how to display AI Generated article the same as a regular article.
+
+Team Member # 4: Kshitij
+Hours Worked: 10 hours
+Tasks Completed: 
+Attempted to integrate AWS Cognito but faced challenges due to the lack of native support.
+Converted React elements to utilize Cognito’s native support, but it was unsuccessful.
+Experimented with older Amplify documentation, but it did not work as expected.
+Researched NextAuth providers as a potential solution.
+After a week of troubleshooting, I am considering implementing Clerk’s API to centralize user authentication and profile management.
+Looked into Docker but determined that we are not yet at a stage where bundling dependencies is necessary.
+Tasks for Next Week: 
+Begin integrating Clerk API for authentication.
+Set up user profile management within Clerk.
+Test authentication flow to ensure smooth user experience.
+Document findings and challenges encountered during the implementation.
+
+Team Member # 5: Isaac
+Hours Worked: 9 hours
+Tasks Completed: 
+Helped troubleshoot Ollama server and helped with tunneling
+Helped with  deep seek setup and integration
+Worked on setting up rudimentary read and write to database from code to AWS
+Tasks for Next Week: 
+Use read/ write along with api to do database population
+Try to connect database to Ai model
