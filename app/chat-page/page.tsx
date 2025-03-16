@@ -17,8 +17,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, AlertTriangle, ChevronRight } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import withAuth from "../../lib/withAuth";
 
-export default function Home() {
+function Home() {
   const [prompt, setPrompt] = useState("");
   const [rawArticle, setRawArticle] = useState("");
   const [processedArticle, setProcessedArticle] = useState("");
@@ -364,3 +365,5 @@ export default function Home() {
     </main>
   );
 }
+
+export default withAuth(Home);

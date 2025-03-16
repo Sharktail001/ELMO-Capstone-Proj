@@ -2,10 +2,10 @@
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
 import ChatPage from "../chat-page/page";
+import withAuth from "../../lib/withAuth";
 
-export default function DashboardPage() {
+function DashboardPage() {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -15,3 +15,5 @@ export default function DashboardPage() {
     </SidebarProvider>
   );
 }
+
+export default withAuth(DashboardPage);
