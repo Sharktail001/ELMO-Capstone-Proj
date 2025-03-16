@@ -1,17 +1,11 @@
 import { Amplify } from 'aws-amplify';
 import { signIn, signOut, signUp, confirmSignUp } from 'aws-amplify/auth';
+import dotenv from 'dotenv';
 
-const poolId = process.env.AWS_POOL_ID;
-const userPoolClientId = process.env.AWS_POOL_CLIENT_ID;
+dotenv.config();
 
-// Amplify.configure({
-//   Auth: {
-//     Cognito: {
-//       userPoolId: "us-east-1_Wh2rJhtYN",
-//       userPoolClientId: "5p32rcqgnak4fq3cl1gv63jp3q",
-//     }
-//   }
-// });
+// const poolId = process.env.AWS_POOL_ID;
+// const userPoolClientId = String(process.env.AWS_POOL_CLIENT_ID);
 
 Amplify.configure({
   Auth: {
@@ -22,8 +16,18 @@ Amplify.configure({
   }
 });
 
+// Amplify.configure({
+//   Auth: {
+//     Cognito: {
+//       userPoolId: poolId!,
+//       userPoolClientId: userPoolClientId,
+//     }
+//   }
+// });
+
 export const signInUser = async (username: string, password: string) => {
   try {
+    // console.log("test", poolId);
     const user = await signIn({ username, password });
     console.log("Logged in successfully");
     return user;

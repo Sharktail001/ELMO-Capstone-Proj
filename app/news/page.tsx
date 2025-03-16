@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import withAuth from "../../lib/withAuth";
 
-export default function News() {
+function News() {
   const [query, setQuery] = useState(""); // Default query
   type Article = {
     title: string;
@@ -60,3 +61,5 @@ export default function News() {
     </div>
   );
 }
+
+export default withAuth(News);

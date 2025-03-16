@@ -1,10 +1,16 @@
 "use client";
 
-import { GalleryVerticalEnd } from "lucide-react";
+import { GalleryVerticalEnd, Pin } from "lucide-react";
 // import Image from "next/image";
 import { LoginForm } from "@/components/login-form";
 import { SignupForm } from "@/components/signup-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import Modal from "@/components/ui/modal";
+import { confirmUserSignUp } from "@/lib/amplifyConfig";
 
 export default function AuthenticationPage() {
   const [isLogin, setIsLogin] = useState(true);
