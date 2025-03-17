@@ -38,9 +38,39 @@ export function SignupForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const router = useRouter();
   const [Sus, setSus] = useState(false);
   const [pin, setPin] = useState("");
+
+  const validatePassword = (password: string): string | null => {
+    const minLength = 8;
+    const hasNumber = /\d/;
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
+    const hasUppercase = /[A-Z]/;
+    const hasLowercase = /[a-z]/;
+
+    const requirements = [
+      { test: (password: string) => password.length >= minLength, message: "Password must be at least 8 characters long." },
+      { test: (password: string) => hasNumber.test(password), message: "Password must contain at least one number." },
+      { test: (password: string) => hasSpecialChar.test(password), message: "Password must contain at least one special character." },
+      { test: (password: string) => hasUppercase.test(password), message: "Password must contain at least one uppercase letter." },
+      { test: (password: string) => hasLowercase.test(password), message: "Password must contain at least one lowercase letter." },
+    ];
+
+    const failedRequirements = requirements
+      .filter(req => !req.test(password))
+      .map(req => req.message);
+
+    return failedRequirements.length > 0 ? failedRequirements.join("\n") : null;
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    const error = validatePassword(newPassword);
+    setPasswordError(error);
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -119,9 +149,10 @@ export function SignupForm({
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 required
               />
+              {passwordError && <p className="text-red-500">{passwordError}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="confirm-password">Confirm Password</Label>
