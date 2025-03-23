@@ -63,10 +63,11 @@ export const signUpUser = async (name: string, password: string, attributes: { e
   }
 };
 
-export const confirmUserSignUp = async (username: string, confirmationCode: string) => {
+export const confirmUserSignUp = async (username: string, confirmationCode: string, password: string) => {
   try {
     const confirmSignUpResult = await confirmSignUp({ username, confirmationCode });
     console.log("Confirmed signup successfully", confirmSignUpResult);
+    await signInUser(username, password);
     return confirmSignUpResult;
   } catch (error) {
     console.error("Error during confirm signup:", error);
