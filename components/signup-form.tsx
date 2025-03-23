@@ -101,7 +101,7 @@ export function SignupForm({
 
   const handleVerification = async (data: z.infer<typeof FormSchema>) => {
     try {
-      const result = await confirmUserSignUp(email, data.pin);
+      const result = await confirmUserSignUp(email, data.pin, password);
       if (result) {
         router.push('/dashboard');
       }
