@@ -22,6 +22,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
@@ -33,11 +34,15 @@ export function SignupForm({
   className,
   onSusChange,
   ...props
-}: React.ComponentPropsWithoutRef<"form"> & { onSusChange?: (status: boolean) => void }) {
+}: React.ComponentPropsWithoutRef<"form"> & {
+  onSusChange?: (status: boolean) => void;
+}) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const [Sus, setSus] = useState(false);
   const [pin, setPin] = useState("");
@@ -73,7 +78,7 @@ export function SignupForm({
     try {
       const result = await confirmUserSignUp(email, data.pin);
       if (result) {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("Error during verification:", error);
@@ -83,7 +88,11 @@ export function SignupForm({
   return (
     <>
       {!Sus ? (
-        <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
+        <form
+          className={cn("flex flex-col gap-6", className)}
+          {...props}
+          onSubmit={handleSubmit}
+        >
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-2xl font-bold">Create a new account</h1>
             <p className="text-balance text-sm text-muted-foreground">
@@ -115,23 +124,53 @@ export function SignupForm({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <Label htmlFor="password">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
             <Button type="submit" className="w-full">
               Sign Up
@@ -172,7 +211,10 @@ export function SignupForm({
         </form>
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleVerification)} className="w-2/3 space-y-6">
+          <form
+            onSubmit={form.handleSubmit(handleVerification)}
+            className="w-2/3 space-y-6"
+          >
             <FormField
               control={form.control}
               name="pin"
