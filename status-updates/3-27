@@ -47,12 +47,10 @@ Implemented an onboarding page with category selection, allowing users to save t
 Added localStorage support to retain user preferences across sessions.
 Enhanced UI/UX with interactive category toggling and hover effects.
 Integrated dynamic checkbox selection for better accessibility.
-Tasks for Next Week:
-Integrate API into frontend
-Fix the Classification to work for more variety of queries while also looking for more factual and credible resources to use
-Work with Issac on setting up Google Image Search API
-Setup NewsAPI to generate live articles
-Setup user data to be accessible in all pages
+Tasks for Next Week:Collaborate with Avanthi to integrate the front-end and back-end
+Implement routing for the sidebar
+Set up the user profile
+
 
 
 Team Member # 5: Isaac
