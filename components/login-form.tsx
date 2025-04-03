@@ -16,17 +16,21 @@ export function LoginForm({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State to store error messages
+
   const router = useRouter();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError(null); // Reset error state before login attempt
     try {
       const result = await signInUser(username, password);
       if (result) {
         router.push("/dashboard");
       }
-    } catch (error) {
-      console.error("Error during login:", error);
+    } catch (error: any) {
+      const errorMessage = error?.message || "An unexpected error occurred.";
+      setError(errorMessage); // Update error state to display on the screen
     }
   };
 
@@ -51,8 +55,25 @@ export function LoginForm({
             placeholder="m@example.com"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            onBlur={(e) => {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              const errorElement = document.getElementById("email-error");
+              const inputElement = e.target;
+              if (errorElement) {
+                if (!emailRegex.test(e.target.value)) {
+                  errorElement.textContent =
+                    "Please enter a valid email address";
+                  inputElement.classList.add("border-red-500");
+                } else {
+                  errorElement.textContent = "";
+                  inputElement.classList.remove("border-red-500");
+                }
+              }
+            }}
             required
+            className="border"
           />
+          <div id="email-error" className="text-red-500 text-sm"></div>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
@@ -63,7 +84,7 @@ export function LoginForm({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="pr-10"
+              className="pr-10 border"
             />
             <button
               type="button"
@@ -78,6 +99,9 @@ export function LoginForm({
               )}
             </button>
           </div>
+          {error === "Incorrect username or password." && (
+            <div className="text-red-500 text-sm">{error}</div>
+          )}{" "}
         </div>
         <Button type="submit" className="w-full">
           Login

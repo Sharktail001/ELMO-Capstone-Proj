@@ -26,7 +26,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
-    message: "Your one-time password must be 6 characters.",
+    message: "Your verification code must be 6 characters.",
   }),
 });
 
@@ -43,16 +43,19 @@ export function SignupForm({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State to store error messages
   const router = useRouter();
   const [Sus, setSus] = useState(false);
   const [pin, setPin] = useState("");
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError(null); // Reset error state before login attempt
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
+    setError(null);
     try {
       const user = await signUpUser(fullName, password, { email });
       if (user) {
@@ -62,8 +65,9 @@ export function SignupForm({
         }
       }
       console.log("User signed up successfully:", user);
-    } catch (error) {
-      console.error("Error during signup:", error);
+    } catch (error: any) {
+      const errorMessage = error?.message || "An unexpected error occurred.";
+      setError(errorMessage);
     }
   };
 
@@ -119,8 +123,25 @@ export function SignupForm({
                 placeholder="m@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={(e) => {
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  const errorElement = document.getElementById("email-error");
+                  const inputElement = e.target;
+                  if (errorElement) {
+                    if (!emailRegex.test(e.target.value)) {
+                      errorElement.textContent =
+                        "Please enter a valid email address";
+                      inputElement.classList.add("border-red-500");
+                    } else {
+                      errorElement.textContent = "";
+                      inputElement.classList.remove("border-red-500");
+                    }
+                  }
+                }}
                 required
+                className="border"
               />
+              <div id="email-error" className="text-red-500 text-sm"></div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
@@ -171,6 +192,7 @@ export function SignupForm({
                   )}
                 </button>
               </div>
+              {error && <div className="text-red-500 text-sm">{error}</div>}
             </div>
             <Button type="submit" className="w-full">
               Sign Up
