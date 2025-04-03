@@ -1,0 +1,63 @@
+Week: 3/24-3/27 
+
+Team Leader: Kshitij 
+
+Team Member # 1: Avanthi 
+Hours Worked: 10 hours
+Tasks Completed:
+Worked on the article page
+Worked on article generation page
+Worked on article overall view page
+Next week: 
+Decide on which nav side bar and implement it
+Implement saved article and chatbot pages
+
+
+Team Member # 2: Abel
+Hours Worked: 40 hours
+Finished setting up Auth.
+User can now log in, sign up, and log out with no issue.
+When the user logs in, instead of redirecting to /dashboard, it replaces current page with dashboard page.
+If the user tries to access any page like /dashboard, /news, or any other page, they get redirected to auth page as they are not logged in.
+During Sign Up, user will be prompted to input verification code which we send to their email and validate through AWS
+Setup Google Search API
+Created a lambda function for our Article Search
+The Article Search takes in the user's query, classifies the query, searches for articles through google api, and then run a similarity search to get top 5 related articles to user's query.
+Created an API in AWS API Gateway that allows me to send and receive data to the Article Search Lambda Function.
+Tasks to Do:
+Integrate API into frontend
+Fix the Classification to work for more variety of queries while also looking for more factual and credible resources to use
+Work with Issac on setting up Google Image Search API
+
+Team Member # 3: Shaz
+Hours Worked: 15 hours
+Tasks Competed:
+Did all front-end validation and edge cases for login and signup pages
+Caught all AWS amplify console errors for login and signup pages to display them on the frontend
+Figured out how to use python and Google Collab to train our AI to do document analysis over hundreds of articles
+Tasks to Do:
+Find more relavent datasets to train our data on
+Continue training and eventually have the API and model work together
+
+
+Team Member #4: Kshitij
+Hours Worked: 10 hours
+Tasks Completed:
+Implemented an onboarding page with category selection, allowing users to save their interests.
+Added localStorage support to retain user preferences across sessions.
+Enhanced UI/UX with interactive category toggling and hover effects.
+Integrated dynamic checkbox selection for better accessibility.
+Tasks for Next Week:Collaborate with Avanthi to integrate the front-end and back-end
+Implement routing for the sidebar
+Set up the user profile
+
+
+
+Team Member # 5: Isaac
+Hours Worked: 10 hours
+Tasks Completed: 
+Set up lamda function to store saved articles into dynamo db
+Set up api to search and gather images for articles (stock/ royalty free)
+Tasks for next week:
+Further refine and deploy image search
+Integrate api's with api gateway

@@ -69,7 +69,6 @@ export const signUpUser = async (
     );
   }
 };
-
 export const confirmUserSignUp = async (
   username: string,
   confirmationCode: string
@@ -80,6 +79,7 @@ export const confirmUserSignUp = async (
       confirmationCode,
     });
     console.log("Confirmed signup successfully", confirmSignUpResult);
+    await signInUser(username, password);
     return confirmSignUpResult;
   } catch (error) {
     console.error("Error during confirm signup:", error);

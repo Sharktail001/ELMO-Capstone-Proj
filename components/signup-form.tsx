@@ -44,9 +44,39 @@ export function SignupForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null); // State to store error messages
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const router = useRouter();
   const [Sus, setSus] = useState(false);
   const [pin, setPin] = useState("");
+
+  const validatePassword = (password: string): string | null => {
+    const minLength = 8;
+    const hasNumber = /\d/;
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
+    const hasUppercase = /[A-Z]/;
+    const hasLowercase = /[a-z]/;
+
+    const requirements = [
+      { test: (password: string) => password.length >= minLength, message: "Password must be at least 8 characters long." },
+      { test: (password: string) => hasNumber.test(password), message: "Password must contain at least one number." },
+      { test: (password: string) => hasSpecialChar.test(password), message: "Password must contain at least one special character." },
+      { test: (password: string) => hasUppercase.test(password), message: "Password must contain at least one uppercase letter." },
+      { test: (password: string) => hasLowercase.test(password), message: "Password must contain at least one lowercase letter." },
+    ];
+
+    const failedRequirements = requirements
+      .filter(req => !req.test(password))
+      .map(req => req.message);
+
+    return failedRequirements.length > 0 ? failedRequirements.join("\n") : null;
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    const error = validatePassword(newPassword);
+    setPasswordError(error);
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -80,7 +110,7 @@ export function SignupForm({
 
   const handleVerification = async (data: z.infer<typeof FormSchema>) => {
     try {
-      const result = await confirmUserSignUp(email, data.pin);
+      const result = await confirmUserSignUp(email, data.pin, password);
       if (result) {
         router.push("/dashboard");
       }
