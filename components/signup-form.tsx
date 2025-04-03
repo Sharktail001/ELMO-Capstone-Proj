@@ -22,10 +22,11 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
-    message: "Your one-time password must be 6 characters.",
+    message: "Your verification code must be 6 characters.",
   }),
 });
 
@@ -33,11 +34,16 @@ export function SignupForm({
   className,
   onSusChange,
   ...props
-}: React.ComponentPropsWithoutRef<"form"> & { onSusChange?: (status: boolean) => void }) {
+}: React.ComponentPropsWithoutRef<"form"> & {
+  onSusChange?: (status: boolean) => void;
+}) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State to store error messages
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const router = useRouter();
   const [Sus, setSus] = useState(false);
@@ -74,10 +80,12 @@ export function SignupForm({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError(null); // Reset error state before login attempt
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
+    setError(null);
     try {
       const user = await signUpUser(fullName, password, { email });
       if (user) {
@@ -87,8 +95,9 @@ export function SignupForm({
         }
       }
       console.log("User signed up successfully:", user);
-    } catch (error) {
-      console.error("Error during signup:", error);
+    } catch (error: any) {
+      const errorMessage = error?.message || "An unexpected error occurred.";
+      setError(errorMessage);
     }
   };
 
@@ -103,7 +112,7 @@ export function SignupForm({
     try {
       const result = await confirmUserSignUp(email, data.pin, password);
       if (result) {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("Error during verification:", error);
@@ -113,7 +122,11 @@ export function SignupForm({
   return (
     <>
       {!Sus ? (
-        <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
+        <form
+          className={cn("flex flex-col gap-6", className)}
+          {...props}
+          onSubmit={handleSubmit}
+        >
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-2xl font-bold">Create a new account</h1>
             <p className="text-balance text-sm text-muted-foreground">
@@ -140,29 +153,76 @@ export function SignupForm({
                 placeholder="m@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={(e) => {
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  const errorElement = document.getElementById("email-error");
+                  const inputElement = e.target;
+                  if (errorElement) {
+                    if (!emailRegex.test(e.target.value)) {
+                      errorElement.textContent =
+                        "Please enter a valid email address";
+                      inputElement.classList.add("border-red-500");
+                    } else {
+                      errorElement.textContent = "";
+                      inputElement.classList.remove("border-red-500");
+                    }
+                  }
+                }}
                 required
+                className="border"
               />
+              <div id="email-error" className="text-red-500 text-sm"></div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={handlePasswordChange}
-                required
-              />
-              {passwordError && <p className="text-red-500">{passwordError}</p>}
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <Label htmlFor="password">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {error && <div className="text-red-500 text-sm">{error}</div>}
             </div>
             <Button type="submit" className="w-full">
               Sign Up
@@ -203,7 +263,10 @@ export function SignupForm({
         </form>
       ) : (
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleVerification)} className="w-2/3 space-y-6">
+          <form
+            onSubmit={form.handleSubmit(handleVerification)}
+            className="w-2/3 space-y-6"
+          >
             <FormField
               control={form.control}
               name="pin"
