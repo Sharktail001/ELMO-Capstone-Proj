@@ -2,8 +2,8 @@ Name: Avanthi
 Hours: 9 hours
 
 Tasks:
-Worked on saved articles page; added additional features including the Recently Saved Articles feature to fill up more space
-Worked on chat feature page; also added the Recent Inquiries feature to fill up more space
+Worked on saved articles page; added additional features including the Recently Saved Articles feature to fill up more space (not included in the Figma but newly added)
+Worked on chat feature page; also added the Recent Inquiries feature to fill up more space (not included in the Figma but newly added)
 
 Next Week:
 Start with polishing all the pages
