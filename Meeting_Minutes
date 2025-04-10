@@ -54,3 +54,8 @@ Meeting Minutes: 03/27- Kshitij Kulshrestha
 
 General:
 The team focused on authentication, article search, and UI improvements, completing user authentication, onboarding refinements, and front-end validation while setting up an article search API
+
+Meeting Minutes: 04/03- Isaac Hasan
+
+General: 
+Discussed possible training methods for the deepseek ai , Showed working combined search lambda function for AWS. Discussed next steps of integrating front end with apis and researching proposed training methods
