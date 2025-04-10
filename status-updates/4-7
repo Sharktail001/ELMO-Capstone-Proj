@@ -1,0 +1,68 @@
+name: Isaac
+hours: 12 hrs
+
+Tasks:
+prepared database to accept and store data from api calls
+successfully set up api to populate database for searched articles
+helped tweak news api to run properly for article topics
+Helping connect landing page with api calls
+
+To DO:
+Help news api connect to front end properly
+Have front end api calls to search service display correctly
+
+Name: Kshitij
+Hours: 10 hours
+
+Tasks Done:
+Setup routing to work with frontend
+Help implement sidebar on every page
+Tested api with postman and converted it to frontend for debugging
+
+To do:
+Populate the front page with the news articles
+Create an onboarding experience for the user to land on
+Add visuals on the landing page
+
+name: Shaz
+Hours: 8
+
+Tasks:
+Researching neural networks application to our projects
+Testing how to set them up locally
+Testing diff version of deepseek from unsloth becuase some models work better than others
+
+To Do:
+Continue working on fine-tuning with deepseek
+In parallel do reaseach on neural networks and use the best case
+
+
+Team Member: Avanthi
+Hours Spent: 8 hours
+
+Tasks:
+
+Completed implementing the new sidebar/removed the previously hardcoded one to a cleaner/more modern looking sidebar and used the UI component for sidebar for the following for the following: 
+             Chatbot, article explore pages, article generating, and saved article pages
+
+Worked on routing the pages
+
+Worked on pinpointing areas to improve in terms of UI for next week (sleeker looking/different colored buttons for saved articles page, reading modes on the article generation page, adding another visual element to chatbot)
+
+To Do:
+
+Continue on working on polishing the pages
+
+
+
+Name: Abel 
+Hours: 9
+Tasks:
+Cleaned up the NewsAPI lambda function
+Integrated the NewsAPI lambda function with DynamoDB
+Created an imageValidation lambda function in case the images we retrieved from website is invalid and so we can search for more images from the site
+
+To Do:
+Link the frontend with the Article Table in DynamoDB
+Code and implement the API Gateway for ArticleCreation with frontend
+Help with more frontend and backend integration 
