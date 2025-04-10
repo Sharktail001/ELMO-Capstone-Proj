@@ -67,3 +67,4 @@ Create an event trigger for the NewsAPI lambda function so that it runs beginnin
 Link the frontend with the Article Table in DynamoDB
 Code and implement the API Gateway for ArticleCreation with frontend
 Help with more frontend and backend integration 
+Help Shaz with AI research
