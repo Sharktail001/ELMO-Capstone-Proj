@@ -43,3 +43,15 @@ using hugging face datasets, split into 90% training and 10% validation sets
 
 To Do: 
 Continute training data and figure out most efficient way to train it on as much data as possible
+
+
+Name: Kshitij
+Hours: 6 hours
+
+Tasks Completed:
+Worked on routing
+Fixed conflict merges
+
+Next Week's Goals:
+Work on remaining pages to ensure cohesion
+Focus on finishing the Minimum Viable Product (MVP) 
