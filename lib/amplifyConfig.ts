@@ -45,7 +45,11 @@ export const signOutUser = async () => {
   }
 };
 
-export const signUpUser = async (name: string, password: string, attributes: { email: string }) => {
+export const signUpUser = async (
+  name: string,
+  password: string,
+  attributes: { email: string }
+) => {
   try {
     const signUpResult = await signUp({
       username: attributes.email,
@@ -65,6 +69,7 @@ export const signUpUser = async (name: string, password: string, attributes: { e
     );
   }
 };
+
 export const confirmUserSignUp = async (username: string, confirmationCode: string, password: string) => {
   try {
     const confirmSignUpResult = await confirmSignUp({
