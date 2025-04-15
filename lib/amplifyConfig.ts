@@ -1,6 +1,7 @@
 import { Amplify } from "aws-amplify";
 import { signIn, signOut, signUp, confirmSignUp } from "aws-amplify/auth";
 import dotenv from "dotenv";
+import AWS from "aws-sdk";
 
 dotenv.config();
 
@@ -15,6 +16,9 @@ Amplify.configure({
     },
   },
 });
+
+
+
 
 // Amplify.configure({
 //   Auth: {
@@ -69,10 +73,8 @@ export const signUpUser = async (
     );
   }
 };
-export const confirmUserSignUp = async (
-  username: string,
-  confirmationCode: string
-) => {
+
+export const confirmUserSignUp = async (username: string, confirmationCode: string, password: string) => {
   try {
     const confirmSignUpResult = await confirmSignUp({
       username,
@@ -85,3 +87,17 @@ export const confirmUserSignUp = async (
     console.error("Error during confirm signup:", error);
   }
 };
+
+export const getTableItems = async (tableName: string)  => {
+  const params = {
+    TableName: tableName
+  };
+
+  try{
+    const data = await dynamoDB.scan(params).promise();
+    console.log("Items recieved successfully:", data.Items);
+    return data.Items;
+  } catch (error){
+    console.error("Error fetching table items:", error);
+  }
+}

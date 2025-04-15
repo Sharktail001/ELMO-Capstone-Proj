@@ -12,12 +12,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-// import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, AlertTriangle, ChevronRight } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import withAuth from "../../lib/withAuth";
+import { getTableItems } from "@/lib/amplifyConfig";
 
 function Home() {
   const [prompt, setPrompt] = useState("");
@@ -27,6 +27,24 @@ function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedThought, setExpandedThought] = useState(false);
+  const [articles, setArticles] = useState<any[]>([]); // State for articles from DynamoDB
+
+  useEffect(() => {
+    // Fetch articles from DynamoDB on component mount
+    const fetchArticles = async () => {
+      try {
+        const data = await getTableItems("ELMO-Articles-Table");
+        console.log("Fetched articles:", data);
+        if (data) {
+          setTimeout(() => setArticles(data), 1000); // Simulate a delay
+        }
+      } catch (err) {
+        console.error("Error fetching articles:", err);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   useEffect(() => {
     // Process the raw article when it changes
@@ -185,182 +203,64 @@ function Home() {
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">
           Latest Articles
         </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
-            <div className="h-48 bg-gray-200 relative">
-              <Image
-                fill={true}
-                src="/placeholder.svg?height=192&width=384"
-                alt="AI and Machine Learning"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-medium text-lg mb-2 text-gray-900">
-                AI and Machine Learning Fundamentals
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Learn the basics of artificial intelligence and how machine
-                learning is transforming industries.
-              </p>
-            </CardContent>
-            <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
-              <span className="text-xs text-gray-500">5 min read</span>
-              <button
-                className="text-sm hover:text-[#FF5951] transition-colors"
-                style={{ color: "#FF7E77" }}
+        {/* <div className="flex justify-between items-center mb-4"></div>
+          <button className="text-sm text-gray-500 hover:text-[#FF7E77] transition-colors">
+            <span className="mr-2">←</span>Previous Page
+          </button>
+          <span className="text-sm text-gray-500">
+            Page 1 of {Math.ceil(articles.length / 12) || 1}
+          </span>
+          <button className="text-sm text-gray-500 hover:text-[#FF7E77] transition-colors">
+            Next Page<span className="ml-2">→</span>
+          </button> */}
+        {/* </div> */}
+        <div className="border-b border-gray-200 mb-4"></div>
+        {articles.length === 0 ? (
+          <div className="text-center text-gray-500">Loading articles...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {articles.map((article, index) => (
+              console.log("Article:", article.title),
+              <Card
+                key={index}
+                className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white"
               >
-                Read more
-              </button>
-            </CardFooter>
-          </Card>
-
-          <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
-            <div className="h-48 bg-gray-200 relative">
-              <Image
-                fill={true}
-                src="/placeholder.svg?height=192&width=384"
-                alt="Data Science"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-medium text-lg mb-2 text-gray-900">
-                Data Science for Beginners
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Discover how to analyze and interpret complex data sets to drive
-                business decisions.
-              </p>
-            </CardContent>
-            <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
-              <span className="text-xs text-gray-500">8 min read</span>
-              <button
-                className="text-sm hover:text-[#FF5951] transition-colors"
-                style={{ color: "#FF7E77" }}
-              >
-                Read more
-              </button>
-            </CardFooter>
-          </Card>
-
-          <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
-            <div className="h-48 bg-gray-200 relative">
-              <Image
-                fill={true}
-                src="/placeholder.svg?height=192&width=384"
-                alt="Natural Language Processing"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-medium text-lg mb-2 text-gray-900">
-                Natural Language Processing
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Explore how computers understand and generate human language
-                through NLP techniques.
-              </p>
-            </CardContent>
-            <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
-              <span className="text-xs text-gray-500">6 min read</span>
-              <button
-                className="text-sm hover:text-[#FF5951] transition-colors"
-                style={{ color: "#FF7E77" }}
-              >
-                Read more
-              </button>
-            </CardFooter>
-          </Card>
-
-          <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
-            <div className="h-48 bg-gray-200 relative">
-              <Image
-                fill={true}
-                src="/placeholder.svg?height=192&width=384"
-                alt="Computer Vision"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-medium text-lg mb-2 text-gray-900">
-                Computer Vision Applications
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Learn how machines interpret visual information and the
-                real-world applications.
-              </p>
-            </CardContent>
-            <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
-              <span className="text-xs text-gray-500">7 min read</span>
-              <button
-                className="text-sm hover:text-[#FF5951] transition-colors"
-                style={{ color: "#FF7E77" }}
-              >
-                Read more
-              </button>
-            </CardFooter>
-          </Card>
-
-          <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
-            <div className="h-48 bg-gray-200 relative">
-              <Image
-                fill={true}
-                src="/placeholder.svg?height=192&width=384"
-                alt="Reinforcement Learning"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-medium text-lg mb-2 text-gray-900">
-                Reinforcement Learning Explained
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Understand how AI agents learn to make decisions through trial
-                and error.
-              </p>
-            </CardContent>
-            <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
-              <span className="text-xs text-gray-500">10 min read</span>
-              <button
-                className="text-sm hover:text-[#FF5951] transition-colors"
-                style={{ color: "#FF7E77" }}
-              >
-                Read more
-              </button>
-            </CardFooter>
-          </Card>
-
-          <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white">
-            <div className="h-48 bg-gray-200 relative">
-              <Image
-                fill={true}
-                src="/placeholder.svg?height=192&width=384"
-                alt="AI Ethics"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-medium text-lg mb-2 text-gray-900">
-                Ethics in Artificial Intelligence
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Explore the ethical considerations and challenges in developing
-                responsible AI systems.
-              </p>
-            </CardContent>
-            <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
-              <span className="text-xs text-gray-500">9 min read</span>
-              <button
-                className="text-sm hover:text-[#FF5951] transition-colors"
-                style={{ color: "#FF7E77" }}
-              >
-                Read more
-              </button>
-            </CardFooter>
-          </Card>
-        </div>
+                <div className="h-48 bg-gray-200 relative">
+                  <Image
+                    fill={true}
+                    src={article.urlToImage || "/placeholder.svg"}
+                    alt={article.title || "Article Image"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-medium text-lg mb-2 text-gray-900">
+                    {article.title || "Untitled"}
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    {article.description || "No description available."}
+                  </p>
+                </CardContent>
+                <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
+                  <span className="text-xs text-gray-500">
+                    {article.published_date
+                      ? new Date(article.published_date).toLocaleDateString()
+                      : "Unknown date"}
+                  </span>
+                  <a
+                    href={article.url || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm hover:text-[#FF5951] transition-colors"
+                    style={{ color: "#FF7E77" }}
+                  >
+                    Read more
+                  </a>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );
