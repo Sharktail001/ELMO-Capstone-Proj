@@ -17,11 +17,8 @@ Amplify.configure({
   },
 });
 
-const dynamoDB =  new AWS.DynamoDB.DocumentClient({
-  region: "us-east-1",
-  accessKeyId: "AKIA5PERF5HC7RSKHE4P",
-  secretAccessKey: "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",
-});
+
+
 
 // Amplify.configure({
 //   Auth: {
