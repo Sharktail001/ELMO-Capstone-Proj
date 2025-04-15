@@ -23,6 +23,8 @@
     "ai": "^4.1.47",
     "aws": "^0.0.3-2",
     "aws-amplify": "^6.13.4",
+    "aws-cdk-lib": "^2.189.0",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
