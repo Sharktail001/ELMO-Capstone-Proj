@@ -41,4 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 # AWS Amplify
-*/lib/amplifyConfig.ts
+lib/amplifyConfig.ts
