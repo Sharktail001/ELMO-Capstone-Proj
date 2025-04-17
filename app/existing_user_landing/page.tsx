@@ -3,16 +3,18 @@ import React from "react";
 
 {/* Article genre categories */}
 const categories = [
-  { name: "Breaking News & Current Events", emoji: "🌟" },
-  { name: "Technology & Innovation", emoji: "🎮" },
-  { name: "Science & Health", emoji: "🧪" },
+  { name: "Breaking News & Current Events", emoji: "🌟" }, //YES - General
+  { name: "Technology & Innovation", emoji: "🎮" }, //YES
+  { name: "Science & Health", emoji: "🧪" }, //YES
   { name: "Travel", emoji: "✈️" },
-  { name: "Entertainment & Media", emoji: "🎭" },
+  { name: "Entertainment & Media", emoji: "🎭" }, //YES
   { name: "Arts & Culture", emoji: "🎨" },
   { name: "Opinions & Deep Dives", emoji: "☘️" },
   { name: "Food", emoji: "🍕" },
-  { name: "Sports & Lifestyle", emoji: "🏈" },
+  { name: "Sports & Lifestyle", emoji: "🏈" }, //YES
 ];
+
+//"science", "entertainment", "sports", "general", "health", "business", "technology"
 
 {/* Selcting article categories section */}
 const ReturningUsers = () => {

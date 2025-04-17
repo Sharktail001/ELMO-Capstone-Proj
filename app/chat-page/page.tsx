@@ -218,48 +218,54 @@ function Home() {
         {articles.length === 0 ? (
           <div className="text-center text-gray-500">Loading articles...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {articles.map((article, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {articles
+              .sort((a, b) => {
+              const dateA = new Date(a.published_date).getTime() || 0;
+              const dateB = new Date(b.published_date).getTime() || 0;
+              return dateB - dateA;
+              })
+              .map((article, index) => (
               console.log("Article:", article.title),
               <Card
                 key={index}
                 className="overflow-hidden hover:shadow-md transition-shadow duration-300 bg-white"
               >
                 <div className="h-48 bg-gray-200 relative">
-                  <Image
-                    fill={true}
-                    src={article.urlToImage || "/placeholder.svg"}
-                    alt={article.title || "Article Image"}
-                    className="w-full h-full object-cover"
-                  />
+                <Image
+                  fill={true}
+                  src={article.urlToImage || "/placeholder.svg"}
+                  alt={article.title || "Article Image"}
+                  className="w-full h-full object-cover"
+                />
                 </div>
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-lg mb-2 text-gray-900">
-                    {article.title || "Untitled"}
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    {article.description || "No description available."}
-                  </p>
+                <h3 className="font-medium text-lg mb-2 text-gray-900">
+                  {article.title || "Untitled"}
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {article.description || "No description available."}
+                </p>
                 </CardContent>
                 <CardFooter className="px-4 pb-4 pt-0 flex justify-between items-center">
-                  <span className="text-xs text-gray-500">
-                    {article.published_date
-                      ? new Date(article.published_date).toLocaleDateString()
-                      : "Unknown date"}
-                  </span>
-                  <a
-                    href={article.url || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm hover:text-[#FF5951] transition-colors"
-                    style={{ color: "#FF7E77" }}
-                  >
-                    Read more
-                  </a>
+                <span className="text-xs text-gray-500">
+                  {article.published_date
+                  ? new Date(article.published_date).toLocaleDateString()
+                  : "Unknown date"}
+                </span>
+                <a
+                  href={article.url || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm hover:text-[#FF5951] transition-colors"
+                  style={{ color: "#FF7E77" }}
+                >
+                  Read more
+                </a>
                 </CardFooter>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
         )}
       </div>
     </main>
