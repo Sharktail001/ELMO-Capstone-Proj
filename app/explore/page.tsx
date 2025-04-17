@@ -147,11 +147,8 @@ function Explore() {
       <div className="container max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-12 text-center">
-          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF5951] to-[#FF7E77] mb-3">
-            ELMO
-          </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Your AI-powered news assistant. Search, discover, and generate articles on any topic.
+          Search, discover, and generate articles on any topic.
           </p>
         </div>
 
@@ -333,7 +330,7 @@ function Explore() {
                         asChild
                       >
                         <a href={article.url || "#"} target="_blank" rel="noopener noreferrer">
-                          Read more <ExternalLink className="h-3 w-3 ml-1" />
+                          Source <ExternalLink className="h-3 w-3 ml-1" />
                         </a>
                       </Button>
                     </CardFooter>

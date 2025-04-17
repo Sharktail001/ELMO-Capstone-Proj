@@ -112,12 +112,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#" className="flex items-center gap-2">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#FF5951] to-[#FF7E77] text-white">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <Newspaper className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold text-lg">ELMO</span>
-                  <span className="text-xs text-muted-foreground">AI News Assistant</span>
                 </div>
               </a>
             </SidebarMenuButton>

@@ -34,6 +34,15 @@ const dynamoDB =  new AWS.DynamoDB.DocumentClient({
 
 export const signInUser = async (username: string, password: string) => {
   try {
+    // Check if user is already signed in
+    const currentUser = await Auth.currentAuthenticatedUser();
+    console.log("User already signed in:", currentUser);
+    return currentUser;
+  } catch {
+    // No user signed in – continue to sign in
+  }
+
+  try {
     const user = await signIn({ username, password });
     console.log("Logged in successfully");
     return user;
@@ -77,14 +86,18 @@ export const signUpUser = async (
   }
 };
 
-export const confirmUserSignUp = async (username: string, confirmationCode: string, password: string) => {
+export const confirmUserSignUp = async (
+  username: string,
+  confirmationCode: string,
+  password: string
+) => {
   try {
     const confirmSignUpResult = await confirmSignUp({
       username,
       confirmationCode,
     });
     console.log("Confirmed signup successfully", confirmSignUpResult);
-    await signInUser(username, password);
+    await signInUser(username, password); // auto-login after confirmation
     return confirmSignUpResult;
   } catch (error) {
     console.error("Error during confirm signup:", error);
