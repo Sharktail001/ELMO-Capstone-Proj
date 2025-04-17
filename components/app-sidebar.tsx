@@ -1,23 +1,12 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import {
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
-
-import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+import type * as React from "react"
+import { useEffect, useState } from "react"
+import { Frame, Map, PieChart, Settings2, SquareTerminal, Newspaper, Search } from "lucide-react"
+import { NavMain } from "@/components/nav-main"
+import { NavProjects } from "@/components/nav-projects"
+import { NavSecondary } from "@/components/nav-secondary"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +15,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+  SidebarSeparator,
+  SidebarInput,
+  SidebarRail,
+} from "@/components/ui/sidebar"
+import { useAuth } from "@/lib/AuthContext" // Import useAuth hook
 
 const data = {
   user: {
@@ -56,48 +49,6 @@ const data = {
       ],
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
       title: "Settings",
       url: "#",
       icon: Settings2,
@@ -121,18 +72,7 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
+  navSecondary: [],
   projects: [
     {
       name: "Design Engineering",
@@ -150,36 +90,57 @@ const data = {
       icon: Map,
     },
   ],
-};
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { isAuthenticated } = useAuth(); // Get authentication state
+  const [isClient, setIsClient] = useState(false);
+
+  // Wait for the component to mount before checking authentication
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient || !isAuthenticated) {
+    return null; // Do not render sidebar if the user is not authenticated
+  }
+
   return (
     <Sidebar variant="inset" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="pb-0">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
+              <a href="#" className="flex items-center gap-2">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#FF5951] to-[#FF7E77] text-white">
+                  <Newspaper className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">ELMO</span>
-                  <span className="truncate text-xs">AI </span>
+                  <span className="truncate font-bold text-lg">ELMO</span>
+                  <span className="text-xs text-muted-foreground">AI News Assistant</span>
                 </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+
+      <SidebarSeparator />
+
+      <SidebarContent className="[&_.sidebar-group-label]:text-xs [&_.sidebar-group-label]:font-medium [&_.sidebar-group-label]:text-muted-foreground [&_[data-active=true]]:text-[#FF7E77] [&_[data-active=true]_svg]:text-[#FF7E77] [&_a:hover_svg]:text-[#FF7E77]">
         <NavMain items={data.navMain} />
+        <SidebarSeparator className="my-2" />
         <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+
+      <SidebarSeparator />
+
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+
+      <SidebarRail />
     </Sidebar>
   );
 }

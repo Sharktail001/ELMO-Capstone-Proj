@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-{/* Article genre categories */}
+// Article genre categories
 const categories = [
   { name: "Breaking News & Current Events", emoji: "🌟" },
   { name: "Technology & Innovation", emoji: "🎮" },
@@ -14,28 +14,25 @@ const categories = [
   { name: "Sports & Lifestyle", emoji: "🏈" },
 ];
 
-{/* Selcting article categories section */}
 const ReturningUsers = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white px-6">
-      
+    <div className="flex flex-col h-full px-6 py-8">
       {/* Header */}
       <h1 className="text-4xl font-bold text-center mb-4">Hello, Name!</h1>
-
       {/* Subheader */}
-      <h2 className="text-xl font-semibold text-center">
+      <h2 className="text-xl font-semibold text-center mb-1">
         What kind of articles are you looking for today?
       </h2>
       <p className="text-md text-gray-600 italic text-center mb-6">
         Select at least one or click{" "}
-        <Link href="/homepage" className="text-blue-500 underline"> {/* Will go to dashboard later */}
+        <Link href="/explore" className="text-blue-500 underline">
           here
         </Link>{" "}
-        to go to the homepage
+        to go to the homepage.
       </p>
 
       {/* Category Buttons */}
-      <div className="w-full max-w-md flex flex-col gap-3">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-3">
         {categories.map((category, index) => (
           <button
             key={index}
@@ -45,7 +42,6 @@ const ReturningUsers = () => {
           </button>
         ))}
       </div>
-
     </div>
   );
 };

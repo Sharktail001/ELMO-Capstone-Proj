@@ -26,7 +26,7 @@ export function LoginForm({
     try {
       const result = await signInUser(username, password);
       if (result) {
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (error: any) {
       const errorMessage = error?.message || "An unexpected error occurred.";
