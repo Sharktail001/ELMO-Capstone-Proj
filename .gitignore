@@ -42,3 +42,8 @@ next-env.d.ts
 
 # AWS Amplify
 lib/amplifyConfig.ts
+
+# OTHERS
+app/article/page.tsx
+app/article_explore/page.tsx
+app/article_generating/page.tsx

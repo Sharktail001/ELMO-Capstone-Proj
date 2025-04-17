@@ -1,0 +1,70 @@
+Team Member: Avanthi
+Hours Spent: 8 hours
+
+Tasks:
+Worked on improving the UI of the saved article page with sleeker buttons
+Worked on changing the reading modes UI on the article generation page to make it look more modern and cohesive
+Worked on improving the UI of the chatbot by adding a gradient effect
+Worked on researching APIs for articles for arts/culture, food, opinions and deep dives and travel
+
+To Do:
+Continue on working on polishing the pages
+
+
+Team member: Isaac
+hours: 8 hrs
+
+Tasks
+Set up Ollama and deepseek on my local machine for better performance
+finding additional api's for news categories as NEWS api does not eover every category
+helping figure out how to connect ai to database with shaz
+
+To do:
+Help connect AI to application
+test features
+
+
+Team Member: Abel Thomas
+Hours Spent: 15 hours
+
+Tasks:
+Finished setting up NewsAPi and Database Cleaner lambda functions
+Connected the lambda function with the database
+Helped display article information in the frontend
+Researching APIs for remaining categories
+
+To Do:
+Continue researching apis for remaining categories
+Connect each article to a unique page for themselves
+Implement saving article feature for each Article we make
+Connect Article_Search functionality with AI
+
+
+Team Member: Shaz
+Hours Spent: 12 hours
+
+Tasks: 
+still fine-tuning model
+got the model running on different server with more power
+editing parameters on fine-tune model
+started inputting database populated data into the AI as context
+
+To Do:
+Fine tune the model to output better from the context it has
+Monitor training for the AI
+
+
+Team Member: Kshitij
+Hours Spent: 14 hours
+
+Tasks:
+Added article display/date/number of articles found in the frontend
+Added search function in the explore page
+Created an input bar for search/generate
+Fixed routing
+Polished login/register pages
+
+To Do:
+Streamline content on one main dashboard/explore page to generate and view article in one place
+Replace the sidebar because of the current nesting issues
+Create a landing page and polish the cta
