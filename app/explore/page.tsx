@@ -1,27 +1,26 @@
+// src/app/explore/page.tsx
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
-import { Input } from "@/components/ui/input"
-import { Search, ArrowRight, Loader2, AlertTriangle, ChevronRight, ExternalLink, Clock } from "lucide-react"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import Image from "next/image"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import Markdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import withAuth from "../../lib/withAuth"
+import { useRouter } from "next/navigation"
 import { getTableItems } from "@/lib/amplifyConfig"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import withAuth from "../../lib/withAuth"
+import SearchBar from "./components/SearchBar"
+import ErrorAlert from "./components/ErrorAlert"
+import ArticleContent from "./components/ArticleContent"
+import ArticleGrid from "./components/ArticleGrid"
+import LoadingArticles from "./components/LoadingArticles"
+import NoArticlesFound from "./components/NoArticlesFound"
+import LoadingArticleGeneration from "./components/LoadingArticlesGeneration"
+import CategoryFilters from "./components/CategoryFilters"
 
 function Explore() {
+  const router = useRouter()
   const [prompt, setPrompt] = useState("")
   const [rawArticle, setRawArticle] = useState("")
   const [processedArticle, setProcessedArticle] = useState("")
-  const [thoughtContent, setThoughtContent] = useState("s")
+  const [thoughtContent, setThoughtContent] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [expandedThought, setExpandedThought] = useState(false)
@@ -29,6 +28,8 @@ function Explore() {
   const [filteredArticles, setFilteredArticles] = useState<any[]>([])
   const [isArticlesLoading, setIsArticlesLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("search")
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [sortOption, setSortOption] = useState("newest")
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -46,7 +47,6 @@ function Explore() {
         setIsArticlesLoading(false)
       }
     }
-
     fetchArticles()
   }, [])
 
@@ -63,17 +63,30 @@ function Explore() {
   }, [rawArticle])
 
   useEffect(() => {
+    let filtered = [...articles]
+
     if (prompt.trim()) {
-      const filtered = articles.filter(
+      filtered = filtered.filter(
         (article) =>
           article.title?.toLowerCase().includes(prompt.toLowerCase()) ||
-          article.description?.toLowerCase().includes(prompt.toLowerCase()),
+          article.description?.toLowerCase().includes(prompt.toLowerCase())
       )
-      setFilteredArticles(filtered)
-    } else {
-      setFilteredArticles(articles)
     }
-  }, [prompt, articles])
+
+    if (activeCategory) {
+      filtered = filtered.filter(
+        (article) => (article.category || "Uncategorized") === activeCategory
+      )
+    }
+
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.date).getTime()
+      const dateB = new Date(b.date).getTime()
+      return sortOption === "newest" ? dateB - dateA : dateA - dateB
+    })
+
+    setFilteredArticles(filtered)
+  }, [prompt, articles, activeCategory, sortOption])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -112,9 +125,7 @@ function Explore() {
       while (true) {
         const { done, value } = await reader.read()
 
-        if (done) {
-          break
-        }
+        if (done) break
 
         const chunk = decoder.decode(value)
         setRawArticle((prev) => prev + chunk)
@@ -129,17 +140,17 @@ function Explore() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "Unknown date"
-    try {
-      return new Date(dateString).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    } catch (e) {
-      return "Unknown date"
-    }
+  const handleCategoryChange = (category: string | null) => {
+    setActiveCategory(category)
+  }
+
+  const handleArticleClick = (articleId: string) => {
+    router.push(`/explore/${articleId}`)
+  }
+
+  const resetFilters = () => {
+    setPrompt("")
+    setActiveCategory(null)
   }
 
   return (
@@ -148,43 +159,32 @@ function Explore() {
         {/* Header */}
         <div className="mb-12 text-center">
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Search, discover, and generate articles on any topic.
+            Search, discover, and generate articles on any topic.
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="relative max-w-2xl mx-auto mb-10">
-          <form onSubmit={handleSubmit} className="group">
-            <Input
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="pl-12 pr-12 py-7 text-lg rounded-full border-gray-200 shadow-lg bg-white focus-visible:ring-[#FF7E77] focus-visible:ring-offset-2 transition-all duration-300"
-              placeholder="What would you like to learn about today?"
-            />
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-6 w-6 transition-all duration-300 group-focus-within:text-[#FF7E77]">
-              <Search />
-            </div>
-            <button
-              type="submit"
-              className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-10 w-10 flex items-center justify-center bg-[#FF7E77] text-white rounded-full transition-all duration-300 ease-in-out ${
-                prompt ? "opacity-100 scale-100" : "opacity-0 scale-90"
-              } hover:bg-[#FF5951]`}
-              disabled={!prompt.trim() || isLoading}
-            >
-              {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
-            </button>
-          </form>
-        </div>
+        <SearchBar 
+          prompt={prompt} 
+          setPrompt={setPrompt} 
+          handleSubmit={handleSubmit} 
+          isLoading={isLoading} 
+        />
 
-        {error && (
-          <Alert variant="destructive" className="mb-8 max-w-4xl mx-auto">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+        {/* Category Filters */}
+        {!isArticlesLoading && (
+          <CategoryFilters 
+            articles={articles}
+            onFilterChange={handleCategoryChange}
+            activeCategory={activeCategory}
+            onSortChange={setSortOption}
+            activeSortOption={sortOption}
+          />
         )}
 
-        {/* Tabs for Generated Content and Search Results */}
+        {error && <ErrorAlert message={error} />}
+
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-7xl mx-auto">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
             <TabsTrigger value="search">Search Results</TabsTrigger>
@@ -193,150 +193,57 @@ function Explore() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Generated Article Tab */}
           <TabsContent value="generated" className="space-y-6">
-            {isLoading && (
-              <div className="flex flex-col items-center justify-center py-12">
-                <Loader2 className="h-12 w-12 animate-spin text-[#FF7E77] mb-4" />
-                <p className="text-gray-600">Generating your article...</p>
-              </div>
-            )}
-
+            {isLoading && <LoadingArticleGeneration />}
             {processedArticle && (
-              <div className="space-y-6">
-                {thoughtContent && (
-                  <Card className="border border-gray-200 shadow-sm overflow-hidden">
-                    <CardHeader className="bg-gray-50 border-b border-gray-200 py-3">
-                      <CardTitle className="flex items-center text-base font-medium">
-                        <button
-                          onClick={() => setExpandedThought(!expandedThought)}
-                          className="flex items-center hover:text-[#FF7E77] transition-colors"
-                        >
-                          <ChevronRight
-                            className={`mr-2 h-4 w-4 transition-transform duration-200 ${
-                              expandedThought ? "rotate-90" : ""
-                            }`}
-                          />
-                          AI Thought Process
-                        </button>
-                      </CardTitle>
-                    </CardHeader>
-                    {expandedThought && (
-                      <CardContent className="bg-gray-50/50 p-4 text-sm">
-                        <pre className="whitespace-pre-wrap font-mono text-xs text-gray-700 bg-gray-100 p-4 rounded-md overflow-auto max-h-96">
-                          {thoughtContent}
-                        </pre>
-                      </CardContent>
-                    )}
-                  </Card>
-                )}
-
-                <Card className="border-0 shadow-xl overflow-hidden bg-white">
-                  <CardHeader className="border-b border-gray-100 bg-white">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-2xl font-bold">Generated Article</CardTitle>
-                      <Badge variant="outline" className="bg-[#FFF5F5] text-[#FF7E77] border-[#FFDED9]">
-                        AI Generated
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="prose prose-lg max-w-none p-8 md:p-12">
-                    <Markdown remarkPlugins={[remarkGfm]}>{processedArticle}</Markdown>
-                  </CardContent>
-                </Card>
-              </div>
+              <ArticleContent 
+                processedArticle={processedArticle}
+                thoughtContent={thoughtContent}
+                expandedThought={expandedThought}
+                setExpandedThought={setExpandedThought}
+              />
             )}
           </TabsContent>
 
-          {/* Search Results Tab */}
           <TabsContent value="search">
             <div className="mb-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  {prompt ? `Results for "${prompt}"` : "Latest Articles"}
+                  {(prompt || activeCategory) ? 
+                    `Results ${prompt ? `for "${prompt}"` : ""} ${activeCategory ? `in ${activeCategory}` : ""}` : 
+                    "Latest Articles"}
                 </h2>
-                {filteredArticles.length > 0 && (
-                  <p className="text-sm text-gray-500">
-                    {filteredArticles.length} article{filteredArticles.length !== 1 ? "s" : ""} found
-                  </p>
-                )}
+                <div className="flex items-center gap-3">
+                  {(prompt || activeCategory) && (
+                    <button 
+                      onClick={resetFilters}
+                      className="text-sm text-[#FF7E77] hover:text-[#FF5951] hover:underline"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                  {filteredArticles.length > 0 && (
+                    <p className="text-sm text-gray-500">
+                      {filteredArticles.length} article{filteredArticles.length !== 1 ? "s" : ""} found
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="mt-2 border-b border-gray-200"></div>
             </div>
 
             {isArticlesLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <Card key={i} className="overflow-hidden border-0 shadow-md">
-                    <Skeleton className="h-48 w-full" />
-                    <CardContent className="p-5">
-                      <Skeleton className="h-6 w-3/4 mb-2" />
-                      <Skeleton className="h-4 w-full mb-1" />
-                      <Skeleton className="h-4 w-2/3" />
-                    </CardContent>
-                    <CardFooter className="px-5 pb-5 pt-0">
-                      <Skeleton className="h-4 w-1/4" />
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
+              <LoadingArticles />
             ) : filteredArticles.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="bg-gray-100 inline-flex rounded-full p-4 mb-4">
-                  <Search className="h-6 w-6 text-gray-400" />
-                </div>
-                <h3 className="text-xl font-medium text-gray-800 mb-2">No articles found</h3>
-                <p className="text-gray-600 max-w-md mx-auto">
-                  Try searching with different keywords or generate a new article using the search bar above.
-                </p>
-              </div>
+              <NoArticlesFound 
+                hasFilters={!!(prompt || activeCategory)} 
+                onResetFilters={resetFilters} 
+              />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredArticles.map((article, index) => (
-                  <Card
-                    key={index}
-                    className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group"
-                  >
-                    <div className="h-48 bg-gray-100 relative overflow-hidden">
-                      <Image
-                        fill={true}
-                        src={article.urlToImage || "/placeholder.svg?height=400&width=600"}
-                        alt={article.title || "Article Image"}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
-                          {article.category || "News"}
-                        </Badge>
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {formatDate(article.published_date)}
-                        </div>
-                      </div>
-                      <h3 className="font-semibold text-xl mb-2 line-clamp-2 group-hover:text-[#FF7E77] transition-colors">
-                        {article.title || "Untitled"}
-                      </h3>
-                      <p className="text-gray-600 text-sm line-clamp-3">
-                        {article.description || "No description available."}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="px-5 pb-5 pt-0 flex justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-[#FF7E77] hover:text-[#FF5951] hover:bg-[#FFF5F5] gap-1"
-                        asChild
-                      >
-                        <a href={article.url || "#"} target="_blank" rel="noopener noreferrer">
-                          Source <ExternalLink className="h-3 w-3 ml-1" />
-                        </a>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
+              <ArticleGrid 
+                articles={filteredArticles} 
+                handleArticleClick={handleArticleClick} 
+              />
             )}
           </TabsContent>
         </Tabs>
@@ -345,4 +252,4 @@ function Explore() {
   )
 }
 
-export default withAuth(Explore);
+export default withAuth(Explore)

@@ -7,7 +7,7 @@ import path from "path";
 const ARTICLES_DIR = path.join(process.cwd(), "articles");
 
 // Default model to use
-const AI_MODEL = "deepseek-r1:7b";
+const AI_MODEL = "deepseek-r1:14b";
 
 export const MARKDOWN_INSTRUCTIONS = `
 Follow these guidelines to ensure clarity, readability, and consistency:
