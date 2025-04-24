@@ -35,7 +35,7 @@ function Explore() {
       setIsArticlesLoading(true)
       try {
         const data = await getTableItems("ELMO-Articles-Table")
-        console.log("Fetched articles:", data)
+        // console.log("Fetched articles:", data)
         if (data) {
           setArticles(data)
           setFilteredArticles(data)
@@ -292,7 +292,12 @@ function Explore() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredArticles.map((article, index) => (
+                {filteredArticles.sort((a, b) => {
+                  const dateA = new Date(a.published_date).getTime() || 0;
+                  const dateB = new Date(b.published_date).getTime() || 0;
+                  return dateB - dateA;
+                })
+                  .map((article, index) => (
                   <Card
                     key={index}
                     className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-white group"

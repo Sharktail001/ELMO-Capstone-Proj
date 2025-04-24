@@ -34,7 +34,7 @@ function Chat() {
     const fetchArticles = async () => {
       try {
         const data = await getTableItems("ELMO-Articles-Table");
-        console.log("Fetched articles:", data);
+        // console.log("Fetched articles:", data);
         if (data) {
           setTimeout(() => setArticles(data), 1000); // Simulate a delay
         }

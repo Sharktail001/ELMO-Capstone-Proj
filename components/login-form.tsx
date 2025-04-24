@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 export function LoginForm({
   className,
@@ -18,21 +19,9 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null); // State to store error messages
 
-  const router = useRouter();
+  const { login } = useAuth();
 
-   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const currentUser = await Auth.currentAuthenticatedUser();
-        if (currentUser) {
-          router.push("/explore");
-        }
-      } catch (error) {
-        // User is not signed in – ignore
-      }
-    };
-    checkUser();
-  }, [router]);
+  const router = useRouter();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -40,8 +29,8 @@ export function LoginForm({
   
     try {
       const user = await signInUser(username, password);
-      if (user?.signInUserSession || user?.username) {
-        // Redirect only if a valid session exists
+      if (user) {
+        login();
         router.push("/explore");
       } else {
         throw new Error("Login failed. No user session found.");
@@ -51,7 +40,6 @@ export function LoginForm({
       setError(errorMessage);
     }
   };
-  
 
   return (
     <form

@@ -2,6 +2,19 @@ import { useEffect, useState } from "react";
 import { getCurrentUser, signOut, fetchUserAttributes } from "@aws-amplify/auth";
 import type { AuthUser } from "@aws-amplify/auth";
 
+
+import { Amplify } from "aws-amplify";
+
+Amplify.configure({
+  Auth: {
+    Cognito: {
+      userPoolId: "us-east-1_Wh2rJhtYN",
+      userPoolClientId: "5p32rcqgnak4fq3cl1gv63jp3q",
+    },
+  },
+});
+
+
 interface ExtendedUser extends AuthUser {
   name?: string;
   email?: string;

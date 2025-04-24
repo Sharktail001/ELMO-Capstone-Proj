@@ -1,5 +1,10 @@
+"use client"
+
 import Link from "next/link";
 import React from "react";
+import { useAuth } from "../../lib/useAuth";
+import { useState } from "react";
+import withAuth from "../../lib/withAuth"
 
 // Article genre categories
 const categories = [
@@ -17,11 +22,21 @@ const categories = [
 //"science", "entertainment", "sports", "general", "health", "business", "technology"
 
 {/* Selcting article categories section */}
-const ReturningUsers = () => {
+function ReturningUsers() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <p>Loading...</p>; // Show a loading indicator while checking auth state
+  }
+
+  if (!user) {
+    return null; // Redirect logic is handled by withAuth
+  }
+
   return (
     <div className="flex flex-col h-full px-6 py-8">
       {/* Header */}
-      <h1 className="text-4xl font-bold text-center mb-4">Hello, Name!</h1>
+      <h1 className="text-4xl font-bold text-center mb-4">Hello, {user.name}!</h1>
       {/* Subheader */}
       <h2 className="text-xl font-semibold text-center mb-1">
         What kind of articles are you looking for today?
@@ -49,4 +64,4 @@ const ReturningUsers = () => {
   );
 };
 
-export default ReturningUsers;
+export default withAuth(ReturningUsers);
