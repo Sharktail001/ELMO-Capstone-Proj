@@ -22,12 +22,12 @@ import {
 const mainNavItems = [
   {
     title: "Home",
-    url: "#",
+    url: "/onboarding",
     icon: Home,
   },
   {
     title: "Explore",
-    url: "#",
+    url: "/explore",
     icon: Search,
     isActive: true,
   },

@@ -1,18 +1,20 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { getCurrentUser, signOut } from "@aws-amplify/auth"; // Ensure you're using AWS Amplify Auth if applicable
+import { getCurrentUser, signOut } from "@aws-amplify/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   login: () => void;
   logout: () => void;
+  loading: boolean; // Add loading to the context type
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     async function checkUser() {
@@ -23,6 +25,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.log("No user found", error);
         setIsAuthenticated(false);
+      } finally {
+        setLoading(false); // Set loading to false after the check is complete
       }
     }
     checkUser();
@@ -35,16 +39,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        return { isAuthenticated: false, login: () => {}, logout: () => {} };
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) {
+    return { isAuthenticated: false, login: () => {}, logout: () => {}, loading: true };
+  }
+  return context;
 };

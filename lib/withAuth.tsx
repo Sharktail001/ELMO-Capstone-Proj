@@ -1,27 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
+import React from "react";
 
-export default function withAuth(Component: React.FC) {
-  return function ProtectedPage(props: any) {
-    const { isAuthenticated } = useAuth();
+export default function withAuth<P extends React.PropsWithChildren<{}>>(Component: React.ComponentType<P>) {
+  return function ProtectedPage(props: P) {
+    const { isAuthenticated, loading } = useAuth();
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // console.log("auth is:", isAuthenticated);
-      if (isAuthenticated) {
-        setLoading(false);
-      } else {
-        // console.log("Redirecting to /");
-        router.push("/");
+      if (!loading && !isAuthenticated) {
+        router.push("/"); // Redirect to the main page if not authenticated
       }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, loading, router]);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) {
+      return <p>Loading...</p>; // Show a loading indicator while checking auth state
+    }
 
     return <Component {...props} />;
   };
-}   
+}

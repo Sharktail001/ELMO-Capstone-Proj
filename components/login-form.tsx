@@ -1,13 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signInUser } from "@/lib/amplifyConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 export function LoginForm({
   className,
@@ -18,19 +19,25 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null); // State to store error messages
 
+  const { login } = useAuth();
+
   const router = useRouter();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError(null); // Reset error state before login attempt
+    setError(null); // Reset error state
+  
     try {
-      const result = await signInUser(username, password);
-      if (result) {
-        router.push("/dashboard");
+      const user = await signInUser(username, password);
+      if (user) {
+        login();
+        router.push("/explore");
+      } else {
+        throw new Error("Login failed. No user session found.");
       }
     } catch (error: any) {
       const errorMessage = error?.message || "An unexpected error occurred.";
-      setError(errorMessage); // Update error state to display on the screen
+      setError(errorMessage);
     }
   };
 
