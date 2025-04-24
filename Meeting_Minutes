@@ -58,18 +58,7 @@ The team focused on authentication, article search, and UI improvements, complet
 Meeting Minutes: 04/03- Isaac Hasan
 
 General: 
-<<<<<<< HEAD
 Discussed possible training methods for the deepseek ai, Showed working combined search lambda function for AWS. Discussed next steps of integrating front end with apis and researching proposed training methods
-
-Meeting Minutes: 04/17- Abel Thomas
-
-General:
-Covered frontend/backend progress, went over what all has been implemented and what we plan to implement.
-Frontend has the explorer page all set up, we do however, need to create unique article pages for each article and implement bookmark for each article
-Backend has everything connected to the database. We need to integrate backend with frontend and continue setting up AI article generation.
-Need to do some more research for Backend APIs for more article search
-=======
-Discussed possible training methods for the deepseek ai , Showed working combined search lambda function for AWS. Discussed next steps of integrating front end with apis and researching proposed training methods
 
 Meeting Minutes: 04/10 - Isaac Hasan
 
@@ -78,4 +67,20 @@ Showed functioal routing
 Displayed population of databases
 Talked about training progress
 
->>>>>>> 9eb23345f7eb5954e604f8e7339da23222357fcd
+
+Meeting Minutes: 04/17- Abel Thomas
+
+General:
+Covered frontend/backend progress, went over what all has been implemented and what we plan to implement.
+Frontend has the explorer page all set up, we do however, need to create unique article pages for each article and implement bookmark for each article
+Backend has everything connected to the database. We need to integrate backend with frontend and continue setting up AI article generation.
+Need to do some more research for Backend APIs for more article search
+
+Meeting Minutes: 04/24- Abel Thomas
+
+General:
+Discussed the design flow and pages that have been coded.
+Asked about onboarding pages/purpose.
+Need to work on final report, and go over overview of our product and the problem we are solving.
+Push all our stuff to github and resolve any merge conflicts we may have soon.
+Finish implementing pages with backend and finish setting up AI article Generation.
