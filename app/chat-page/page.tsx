@@ -19,7 +19,7 @@ import remarkGfm from "remark-gfm";
 import withAuth from "../../lib/withAuth";
 import { getTableItems } from "@/lib/amplifyConfig";
 
-function Home() {
+function Chat() {
   const [prompt, setPrompt] = useState("");
   const [rawArticle, setRawArticle] = useState("");
   const [processedArticle, setProcessedArticle] = useState("");
@@ -272,4 +272,4 @@ function Home() {
   );
 }
 
-export default withAuth(Home);
+export default withAuth(Chat);

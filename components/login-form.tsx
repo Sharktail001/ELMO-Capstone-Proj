@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signInUser } from "@/lib/amplifyConfig";
 import { Button } from "@/components/ui/button";
@@ -20,19 +20,38 @@ export function LoginForm({
 
   const router = useRouter();
 
+   useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const currentUser = await Auth.currentAuthenticatedUser();
+        if (currentUser) {
+          router.push("/explore");
+        }
+      } catch (error) {
+        // User is not signed in – ignore
+      }
+    };
+    checkUser();
+  }, [router]);
+
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError(null); // Reset error state before login attempt
+    setError(null); // Reset error state
+  
     try {
-      const result = await signInUser(username, password);
-      if (result) {
-        router.push("/dashboard");
+      const user = await signInUser(username, password);
+      if (user?.signInUserSession || user?.username) {
+        // Redirect only if a valid session exists
+        router.push("/explore");
+      } else {
+        throw new Error("Login failed. No user session found.");
       }
     } catch (error: any) {
       const errorMessage = error?.message || "An unexpected error occurred.";
-      setError(errorMessage); // Update error state to display on the screen
+      setError(errorMessage);
     }
   };
+  
 
   return (
     <form

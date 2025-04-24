@@ -1,51 +1,26 @@
 "use client";
 
-import React from 'react';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/AuthContext";
 import AuthenticationPage from "./authentication/page";
-import DashboardPage from "./dashboard/page";
-import { AuthProvider, useAuth } from "../lib/AuthContext";
+import ExistingUserLanding from "./onboarding/page"; // Or wherever your post-login page is
 
-const Home = () => {
+export default function HomePage() {
   const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
-  return isAuthenticated ? <DashboardPage /> : <AuthenticationPage />;
-};
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Redirect to a user-specific page once authenticated
+      router.push("/explore"); // Change this to whatever page you want after login
+    }
+  }, [isAuthenticated, router]);
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <Home />
-    </AuthProvider>
+  return isAuthenticated ? (
+    // You could also render a loading indicator while redirecting.
+    null // This is an empty render during the redirect
+  ) : (
+    <AuthenticationPage />
   );
 }
-
-
-// "use client";
-
-// import React, { useEffect } from 'react';
-// import { useRouter } from 'next/navigation';
-// import AuthenticationPage from "./authentication/page";
-// // import DashboardPage from "./dashboard/page";
-// import { AuthProvider, useAuth } from "../lib/AuthContext";
-
-// const Home = () => {
-//   const { isAuthenticated } = useAuth();
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     console.log("auth is:", isAuthenticated);
-//     if (isAuthenticated) {
-//       router.push('/dashboard');
-//     }
-//   }, [isAuthenticated, router]);
-
-//   return isAuthenticated ? <AuthenticationPage /> : null;
-// };
-
-// export default function App() {
-//   return (
-//     <AuthProvider>
-//       <AuthenticationPage />
-//     </AuthProvider>
-//   );
-// }
