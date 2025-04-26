@@ -1,36 +1,59 @@
-"use client"
+"use client";
 
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../lib/useAuth";
-import { useState } from "react";
-import withAuth from "../../lib/withAuth"
+import withAuth from "../../lib/withAuth";
+import { updateUser } from "../../lib/amplifyConfig";
 
 // Article genre categories
 const categories = [
-  { name: "Breaking News & Current Events", emoji: "🌟" }, //YES - General
-  { name: "Technology & Innovation", emoji: "🎮" }, //YES
-  { name: "Science & Health", emoji: "🧪" }, //YES
-  { name: "Travel", emoji: "✈️" },
-  { name: "Entertainment & Media", emoji: "🎭" }, //YES
-  { name: "Arts & Culture", emoji: "🎨" },
-  { name: "Opinions & Deep Dives", emoji: "☘️" },
-  { name: "Food", emoji: "🍕" },
-  { name: "Sports & Lifestyle", emoji: "🏈" }, //YES
+  { name: "Breaking News & Current Events", emoji: "🌟", value: "general" }, //YES - General
+  { name: "Technology & Innovation", emoji: "🎮", value: "technology" }, //YES
+  { name: "Science", emoji: "🧪", value: "science" }, //YES
+  { name: "Health & Wellness", emoji: "💊", value: "health" }, //YES
+  { name: "Travel", emoji: "✈️", value: "travel" },
+  { name: "Entertainment & Media", emoji: "🎭", value: "entertainment" }, //YES
+  { name: "Arts & Culture", emoji: "🎨", value: "art" },
+  { name: "Opinions & Deep Dives", emoji: "☘️", value: "min" },
+  { name: "Food", emoji: "🍕", value: "food" },
+  { name: "Sports & Lifestyle", emoji: "🏈", value: "sports" }, //YES
 ];
 
-//"science", "entertainment", "sports", "general", "health", "business", "technology"
-
-{/* Selcting article categories section */}
 function ReturningUsers() {
   const { user, loading } = useAuth();
+  const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
 
+  useEffect(() => {
+    if (user && user.preferences) {
+      setSelectedPreferences(user.preferences);
+    }
+  }, [user]);
+
+  const handleCategoryClick = async (categoryName: string) => {
+    if (!user) return;
+
+    const updatedPreferences = selectedPreferences.includes(categoryName)
+      ? selectedPreferences.filter((pref) => pref !== categoryName) // Remove preference
+      : [...selectedPreferences, categoryName]; // Add preference
+
+    setSelectedPreferences(updatedPreferences);
+
+    try {
+      await updateUser(user.userId, updatedPreferences);
+      console.log("Preferences updated successfully");
+    } catch (error) {
+      console.error("Error updating preferences:", error);
+    }
+  };
+
+  // Handle loading and no-user states within the return statement
   if (loading) {
-    return <p>Loading...</p>; // Show a loading indicator while checking auth state
+    return <p>Loading...</p>;
   }
 
   if (!user) {
-    return null; // Redirect logic is handled by withAuth
+    return null;
   }
 
   return (
@@ -54,7 +77,12 @@ function ReturningUsers() {
         {categories.map((category, index) => (
           <button
             key={index}
-            className="flex justify-between items-center w-full px-4 py-3 border rounded-lg shadow-sm bg-white hover:bg-gray-100 transition duration-200 text-lg font-medium"
+            onClick={() => handleCategoryClick(category.value)}
+            className={`flex justify-between items-center w-full px-4 py-3 border rounded-lg shadow-sm transition duration-200 text-lg font-medium ${
+              selectedPreferences.includes(category.value)
+                ? "bg-blue-100 border-blue-500"
+                : "bg-white hover:bg-gray-100"
+            }`}
           >
             {category.name} <span className="text-xl">{category.emoji}</span>
           </button>
@@ -62,6 +90,6 @@ function ReturningUsers() {
       </div>
     </div>
   );
-};
+}
 
 export default withAuth(ReturningUsers);
