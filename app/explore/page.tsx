@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { getTableItems } from "@/lib/amplifyConfig"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import withAuth from "../../lib/withAuth"
+import { useAuth } from "../../lib/useAuth";
 import SearchBar from "./components/SearchBar"
 import ErrorAlert from "./components/ErrorAlert"
 import ArticleContent from "./components/ArticleContent"
@@ -15,6 +16,7 @@ import NoArticlesFound from "./components/NoArticlesFound"
 import LoadingArticleGeneration from "./components/LoadingArticlesGeneration"
 import CategoryFilters from "./components/CategoryFilters"
 import { Badge } from "@/components/ui/badge"
+import { User } from "lucide-react"
 
 const categories = [
   { name: "Breaking News & Current Events 🌟", value: "general" }, //YES - General
@@ -32,6 +34,7 @@ const categories = [
 
 function Explore() {
   const router = useRouter()
+  const { user, loading } = useAuth();
   const [prompt, setPrompt] = useState("")
   const [rawArticle, setRawArticle] = useState("")
   const [processedArticle, setProcessedArticle] = useState("")
@@ -45,6 +48,7 @@ function Explore() {
   const [activeTab, setActiveTab] = useState("search")
   const [activeCategory, setActiveCategory] = useState<string[]>([])
   const [sortOption, setSortOption] = useState("newest")
+  const [preferencesApplied, setPreferencesApplied] = useState(false);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -185,6 +189,38 @@ function Explore() {
   const resetFilters = () => {
     setPrompt("")
     setActiveCategory([])
+  }
+
+  useEffect(() => {
+    const storedPreferencesApplied = localStorage.getItem("preferencesApplied");
+    if (storedPreferencesApplied === "true") {
+      setPreferencesApplied(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading && user && !preferencesApplied) {
+      console.log("Applying user preferences...");
+      if (user && Array.isArray(user.preferences)) {
+        setActiveCategory(user.preferences);
+      } else {
+        setActiveCategory([]);
+      }
+      setPreferencesApplied(true);
+      localStorage.setItem("preferencesApplied", "true"); // Persist state
+    }
+  }, [loading, user, preferencesApplied]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
