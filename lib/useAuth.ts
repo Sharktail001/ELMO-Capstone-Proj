@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser, signOut, fetchUserAttributes } from "@aws-amplify/auth";
 import type { AuthUser } from "@aws-amplify/auth";
-
-
+import AWS from "aws-sdk";
 import { Amplify } from "aws-amplify";
 
 Amplify.configure({
@@ -14,11 +13,18 @@ Amplify.configure({
   },
 });
 
+const dynamoDB =  new AWS.DynamoDB.DocumentClient({
+  region: "us-east-1",
+  accessKeyId: "AKIA5PERF5HC7RSKHE4P",
+  secretAccessKey: "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",
+});
+
 
 interface ExtendedUser extends AuthUser {
   name?: string;
   email?: string;
   avatar?: string; // Add more attributes if needed
+  preferences?: []; // Assuming you have a preferences attribute
 }
 
 export const useAuth = () => {
@@ -30,11 +36,19 @@ export const useAuth = () => {
       try {
         const authUser = await getCurrentUser();
         const attributes = await fetchUserAttributes(); // Get user attributes
+        // console.log("User attributes:", attributes); // Log the attributes for debugging
+
+        const userPrefereces = await dynamoDB.get({
+          TableName: "Elmo-Users-Table",
+          Key: { userId: authUser.username },
+        }).promise();
+
         setUser({
           ...authUser,
           name: attributes.name || "Unknown",
           email: attributes.email || "No email",
           avatar: attributes.picture || "", // Cognito can store a profile picture URL under "picture"
+          preferences: userPrefereces.Item?.preferences || [], // Assuming preferences are stored in DynamoDB
         });
       } catch {
         setUser(null);

@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     async function checkUser() {
       try {
         const user = await getCurrentUser();
-        console.log("User found:", user);
+        // console.log("User found:", user);
         setIsAuthenticated(true);
       } catch (error) {
         console.log("No user found", error);
