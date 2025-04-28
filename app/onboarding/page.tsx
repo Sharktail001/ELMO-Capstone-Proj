@@ -25,8 +25,10 @@ function ReturningUsers() {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
 
   useEffect(() => {
-    if (user && user.preferences) {
+    if (user && Array.isArray(user.preferences)) {
       setSelectedPreferences(user.preferences);
+    } else {
+      setSelectedPreferences([]);
     }
   }, [user]);
 
