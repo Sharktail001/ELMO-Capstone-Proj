@@ -12,7 +12,7 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (loading && isAuthenticated) {
+    if (isAuthenticated) {
       // Redirect to a user-specific page once authenticated
       router.push("/explore"); // Change this to whatever page you want after login
     }
