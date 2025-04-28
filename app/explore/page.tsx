@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { getTableItems } from "@/lib/amplifyConfig"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import withAuth from "../../lib/withAuth"
+import { useAuth } from "../../lib/useAuth";
 import SearchBar from "./components/SearchBar"
 import ErrorAlert from "./components/ErrorAlert"
 import ArticleContent from "./components/ArticleContent"
@@ -14,9 +15,26 @@ import LoadingArticles from "./components/LoadingArticles"
 import NoArticlesFound from "./components/NoArticlesFound"
 import LoadingArticleGeneration from "./components/LoadingArticlesGeneration"
 import CategoryFilters from "./components/CategoryFilters"
+import { Badge } from "@/components/ui/badge"
+import { User } from "lucide-react"
+
+const categories = [
+  { name: "Breaking News & Current Events 🌟", value: "general" }, //YES - General
+  { name: "Technology & Innovation 🎮", value: "technology" }, //YES
+  { name: "Science 🧪", value: "science" }, //YES
+  { name: "Health & Wellness 💊", value: "health" }, //YES
+  { name: "Travel ✈️", value: "travel" },
+  { name: "Entertainment & Media 🎭", value: "entertainment" }, //YES
+  { name: "Arts & Culture 🎨", value: "art" },
+  { name: "Opinions & Deep Dives ☘️", value: "min" },
+  { name: "Food 🍕", value: "food" },
+  { name: "Sports & Lifestyle 🏈", value: "sports" }, //YES
+];
+
 
 function Explore() {
   const router = useRouter()
+  const { user, loading } = useAuth();
   const [prompt, setPrompt] = useState("")
   const [rawArticle, setRawArticle] = useState("")
   const [processedArticle, setProcessedArticle] = useState("")
@@ -28,8 +46,9 @@ function Explore() {
   const [filteredArticles, setFilteredArticles] = useState<any[]>([])
   const [isArticlesLoading, setIsArticlesLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("search")
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [activeCategory, setActiveCategory] = useState<string[]>([])
   const [sortOption, setSortOption] = useState("newest")
+  const [preferencesApplied, setPreferencesApplied] = useState(false);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -73,10 +92,20 @@ function Explore() {
       )
     }
 
-    if (activeCategory) {
-      filtered = filtered.filter(
-        (article) => (article.category || "Uncategorized") === activeCategory
-      )
+    // if (activeCategory) {
+    //   filtered = filtered.filter(
+    //     (article) => (article.category || "Uncategorized") === activeCategory
+    //   )
+    // }
+
+    if (activeCategory.length > 0) {
+      filtered = filtered.filter((article) => {
+        const articleCategory = article.category || "Uncategorized"
+        return activeCategory.includes(articleCategory)
+      })
+    }
+    else{
+      filtered = filtered.filter((article) => article.category !== null)
     }
 
     filtered.sort((a, b) => {
@@ -87,7 +116,7 @@ function Explore() {
     })
 
     setFilteredArticles(filtered)
-    console.log("Filtered articles:", filtered)
+    // console.log("Filtered articles:", filtered)
   }, [prompt, articles, activeCategory, sortOption])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,8 +172,14 @@ function Explore() {
   }
 
   const handleCategoryChange = (category: string | null) => {
-    setActiveCategory(category)
-    // const filter
+      if (category === null){
+        setActiveCategory([])
+        return
+      };
+      const filter = activeCategory.includes(category)
+        ? activeCategory.filter((cat) => cat !== category)
+        : [...activeCategory, category];
+      setActiveCategory(filter);
   }
 
   const handleArticleClick = (articleId: string) => {
@@ -153,7 +188,39 @@ function Explore() {
 
   const resetFilters = () => {
     setPrompt("")
-    setActiveCategory(null)
+    setActiveCategory([])
+  }
+
+  useEffect(() => {
+    const storedPreferencesApplied = localStorage.getItem("preferencesApplied");
+    if (storedPreferencesApplied === "true") {
+      setPreferencesApplied(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading && user && !preferencesApplied) {
+      console.log("Applying user preferences...");
+      if (user && Array.isArray(user.preferences)) {
+        setActiveCategory(user.preferences);
+      } else {
+        setActiveCategory([]);
+      }
+      setPreferencesApplied(true);
+      localStorage.setItem("preferencesApplied", "true"); // Persist state
+    }
+  }, [loading, user, preferencesApplied]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -212,9 +279,29 @@ function Explore() {
             <div className="mb-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  {(prompt || activeCategory) ? 
-                    `Results ${prompt ? `for "${prompt}"` : ""} ${activeCategory ? `in ${activeCategory}` : ""}` : 
-                    "Latest Articles"}
+                  {(prompt || activeCategory.length > 0) ? (
+                    <>
+                      Results {prompt ? `for "${prompt}"` : ""}
+                      {activeCategory.length > 0 && (
+                        <>
+                          {" in "}
+                          {categories
+                            .filter((cat) => activeCategory.includes(cat.value))
+                            .map((cat) => (
+                              <Badge
+                                key={cat.value}
+                                variant="secondary"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 ml-2"
+                              >
+                                {cat.name}
+                              </Badge>
+                            ))}
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    "Latest Articles"
+                  )}
                 </h2>
                 <div className="flex items-center gap-3">
                   {(prompt || activeCategory) && (

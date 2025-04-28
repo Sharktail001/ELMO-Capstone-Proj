@@ -43,6 +43,7 @@ export function NavUser() {
     setIsLoading(true);
     try {
       console.log("Logging out...");
+      localStorage.removeItem("preferencesApplied");
       await logout();
       router.replace("/");
       window.location.reload(); // Force a full page reload

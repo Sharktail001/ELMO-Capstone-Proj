@@ -8,22 +8,22 @@ import { ArrowDownAZ, ArrowUpAZ, CalendarClock, Filter, SlidersHorizontal, X } f
 interface CategoryFiltersProps {
   articles: any[]
   onFilterChange: (category: string | null) => void
-  activeCategory: string | null
+  activeCategory: string[]
   onSortChange?: (sortOption: string) => void
   activeSortOption?: string
 }
 
 const categories = [
-  { name: "Breaking News & Current Events 🌟", emoji: "", value: "general" }, //YES - General
-  { name: "Technology & Innovation 🎮", emoji: "", value: "technology" }, //YES
-  { name: "Science 🧪", emoji: "", value: "science" }, //YES
-  { name: "Health & Wellness 💊", emoji: "", value: "health" }, //YES
-  { name: "Travel ✈️", emoji: "", value: "travel" },
-  { name: "Entertainment & Media 🎭", emoji: "", value: "entertainment" }, //YES
-  { name: "Arts & Culture 🎨", emoji: "", value: "art" },
-  { name: "Opinions & Deep Dives ☘️", emoji: "", value: "min" },
-  { name: "Food 🍕", emoji: "", value: "food" },
-  { name: "Sports & Lifestyle", emoji: "🏈", value: "sports" }, //YES
+  { name: "Breaking News & Current Events 🌟", value: "general" }, //YES - General
+  { name: "Technology & Innovation 🎮", value: "technology" }, //YES
+  { name: "Science 🧪", value: "science" }, //YES
+  { name: "Health & Wellness 💊", value: "health" }, //YES
+  { name: "Travel ✈️", value: "travel" },
+  { name: "Entertainment & Media 🎭", value: "entertainment" }, //YES
+  { name: "Arts & Culture 🎨", value: "art" },
+  { name: "Opinions & Deep Dives ☘️", value: "min" },
+  { name: "Food 🍕", value: "food" },
+  { name: "Sports & Lifestyle 🏈", value: "sports" }, //YES
 ];
 
 export default function CategoryFilters({
@@ -33,19 +33,19 @@ export default function CategoryFilters({
   onSortChange,
   activeSortOption = "newest",
 }: CategoryFiltersProps) {
-  const [categories, setCategories] = useState<string[]>([])
+  // const [categories, setCategories] = useState<string[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [localSortOption, setLocalSortOption] = useState(activeSortOption)
 
   // Extract unique categories from articles
-  useEffect(() => {
-    if (articles.length > 0) {
-      const uniqueCategories = Array.from(
-        new Set(articles.map((article) => article.category || "Uncategorized").filter(Boolean)),
-      ) as string[]
-      setCategories(uniqueCategories)
-    }
-  }, [articles])
+  // useEffect(() => {
+  //   if (articles.length > 0) {
+  //     const uniqueCategories = Array.from(
+  //       new Set(articles.map((article) => article.category || "Uncategorized").filter(Boolean)),
+  //     ) as string[]
+  //     setCategories(uniqueCategories)
+  //   }
+  // }, [articles])
 
   const handleSortChange = (option: string) => {
     setLocalSortOption(option)
@@ -113,7 +113,7 @@ export default function CategoryFilters({
                     onClick={() => onFilterChange(null)}
                     className={cn(
                       "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                      activeCategory === null
+                      activeCategory.length === 0
                         ? "bg-[#FF7E77] text-white shadow-sm"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200",
                     )}
@@ -123,16 +123,16 @@ export default function CategoryFilters({
 
                   {categories.map((category) => (
                     <button
-                      key={category}
-                      onClick={() => onFilterChange(category)}
+                      key={category.name}
+                      onClick={() => onFilterChange(category.value)}
                       className={cn(
                         "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                        activeCategory === category
+                        activeCategory.includes(category.value)
                           ? "bg-[#FF7E77] text-white shadow-sm"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200",
                       )}
                     >
-                      {category}
+                      {category.name}
                     </button>
                   ))}
                 </div>
