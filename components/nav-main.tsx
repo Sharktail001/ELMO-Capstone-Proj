@@ -32,13 +32,8 @@ const mainNavItems = [
     isActive: true,
   },
   {
-    title: "Ask ELMO",
-    url: "/chat-page",
-    icon: MessageSquare,
-  },
-  {
     title: "Saved",
-    url: "#",
+    url: "/saved",
     icon: Bookmark,
   },
 ]
@@ -46,7 +41,6 @@ const mainNavItems = [
 export function NavMain() {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
         {mainNavItems.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>

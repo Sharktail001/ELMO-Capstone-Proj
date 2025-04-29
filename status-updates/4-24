@@ -1,0 +1,59 @@
+Isaac Hasan: 8 hrs
+Tasks:
+Helped onboard AI with Shaz
+trying to debug and fix parsing issues with the AI
+helped facilitate communication between AI and AWS
+
+TO DO:
+Get AI fully functional and fix any bugs along with 
+Help with final report
+
+
+Team Member: Kshitij Kulshrestha
+Hours Spent: 10 hours
+
+Tasks:
+Created the filter functionality
+Filter functionality sorts by category
+Modularized the explore/home page
+
+To Do:
+Fix the routing and create account page
+Create individual article pages for each article
+
+
+Shaz Kumar: 8 Hrs
+tasks
+Implemented AI in code to run on the application and now generation is not locked to one article
+Dubugging and trying to get the AI to get context from data base
+
+To Do:
+Get AI to read context properly with Isaac
+refine generation in the model
+
+
+Team Member: Avanthi 
+Hours Spent: 8 hours
+
+Tasks: 
+Worked on improving elements of UI
+Added gradient feature to article, article explore, existing user landing page, new user landing page, and saved pages
+Started working on Final Report
+
+To do: 
+Work on final touches after merging
+Work on final report document
+
+
+Team Member: Abel Thomas
+Hours Spent: 9 hours
+
+Tasks:
+Fix some auth issues we ran into
+Fix routing issues
+Helped shaz with running Article API with AI
+
+To Do:
+Need to finish incorporating all the pages with the Database
+Continue working on setting up the AI with Shaz
+Work on Report and Slides
