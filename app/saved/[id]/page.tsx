@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { getTableItemById, getUserSavedArticles, saveUserArticles, removeUserSavedArticle } from "@/lib/amplifyConfig"
+import { getTableItemById, getUserSavedArticles, saveUserArticles, removeUserSavedArticle, getUserSavedArticle } from "@/lib/amplifyConfig"
 import { ChevronLeft, Clock, Bookmark, BookmarkCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -40,7 +40,8 @@ function ArticleDetail() {
     const fetchArticle = async () => {
       setIsLoading(true)
       try {
-        const data = await getTableItemById("ELMO-Articles-Table", decodeURIComponent(id as string))
+        if (!user) return
+        const data = await getUserSavedArticle(user.userId, decodeURIComponent(id as string))
         if (data) {
           setArticle(data)
         } else {

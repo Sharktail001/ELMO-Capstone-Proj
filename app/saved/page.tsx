@@ -5,19 +5,23 @@ import { getSavedArticles } from "@/lib/savedArticles"
 import ArticleGrid from "../explore/components/ArticleGrid"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { Article } from "@/types" // Ensure Article type is correctly defined
+import { Article } from "../../app/explore/types" // Adjusted the path to locate the types file
+import { useAuth } from "@/lib/useAuth"
+import { getUserSavedArticles, saveUserArticles, removeUserSavedArticle } from "@/lib/amplifyConfig"
 
 const SavedArticles = () => {
   const [savedArticles, setSavedArticles] = useState<Article[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { user, loading } = useAuth()
   const router = useRouter()
 
   const fetchSavedArticles = async () => {
     setIsLoading(true)
     try {
-      const articles = await getSavedArticles()
-      setSavedArticles(articles)
+      if (!user) return
+      const saved = await getUserSavedArticles(user.userId)
+      setSavedArticles(saved || [])
     } catch (error) {
       setError("Failed to fetch saved articles.")
     } finally {
@@ -27,10 +31,10 @@ const SavedArticles = () => {
 
   useEffect(() => {
     fetchSavedArticles()
-  }, [])
+  }, [user])
 
   const handleArticleClick = (id: string) => {
-    router.push(`/article/${id}`)
+    router.push(`/saved/${id}`)
   }
 
   if (isLoading) {
@@ -47,7 +51,7 @@ const SavedArticles = () => {
       {savedArticles.length > 0 ? (
         <ArticleGrid
           articles={savedArticles}
-          onArticleClick={handleArticleClick} // Pass the click handler to the grid
+          handleArticleClick={handleArticleClick} // Pass the click handler to the grid
         />
       ) : (
         <div className="text-center py-12">
