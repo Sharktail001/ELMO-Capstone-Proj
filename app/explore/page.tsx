@@ -207,7 +207,7 @@ function Explore() {
         setActiveCategory([]);
       }
       setPreferencesApplied(true);
-      localStorage.setItem("preferencesApplied", "true"); // Persist state
+      localStorage.setItem("preferencesApplied", "true");
     }
   }, [loading, user, preferencesApplied]);
 
