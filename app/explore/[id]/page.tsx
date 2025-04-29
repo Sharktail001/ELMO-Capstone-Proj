@@ -1,42 +1,44 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { getTableItemById } from "@/lib/amplifyConfig"
-import { ChevronLeft, Clock, ExternalLink } from "lucide-react"
+import { ChevronLeft, Clock, Bookmark, BookmarkCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import withAuth from "../../../lib/withAuth"
 import { Skeleton } from "@/components/ui/skeleton"
-
+import { saveArticle, removeArticle, getSavedArticles } from "@/lib/savedArticles"
 
 const categories = [
-  { name: "Breaking News & Current Events", emoji: "🌟", value: "general" }, //YES - General
-  { name: "Technology & Innovation", emoji: "🎮", value: "technology" }, //YES
-  { name: "Science", emoji: "🧪", value: "science" }, //YES
-  { name: "Health & Wellness", emoji: "💊", value: "health" }, //YES
+  { name: "Breaking News & Current Events", emoji: "🌟", value: "general" },
+  { name: "Technology & Innovation", emoji: "🎮", value: "technology" },
+  { name: "Science", emoji: "🧪", value: "science" },
+  { name: "Health & Wellness", emoji: "💊", value: "health" },
   { name: "Travel", emoji: "✈️", value: "travel" },
-  { name: "Entertainment & Media", emoji: "🎭", value: "entertainment" }, //YES
+  { name: "Entertainment & Media", emoji: "🎭", value: "entertainment" },
   { name: "Arts & Culture", emoji: "🎨", value: "art" },
   { name: "Opinions & Deep Dives", emoji: "☘️", value: "min" },
   { name: "Food", emoji: "🍕", value: "food" },
-  { name: "Sports & Lifestyle", emoji: "🏈", value: "sports" }, //YES
-];
+  { name: "Sports & Lifestyle", emoji: "🏈", value: "sports" },
+]
 
-function ArticleDetail({ params }: { params: { id: string } }) {
+function ArticleDetail() {
   const router = useRouter()
+  const { id } = useParams()
   const [article, setArticle] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [savedArticles, setSavedArticles] = useState<string[]>([])
+  const [readingMode, setReadingMode] = useState<"brief" | "standard" | "deep">("standard")
 
   useEffect(() => {
     const fetchArticle = async () => {
       setIsLoading(true)
       try {
-        const data = await getTableItemById("ELMO-Articles-Table", decodeURIComponent(params.id))
+        const data = await getTableItemById("ELMO-Articles-Table", decodeURIComponent(id as string))
         if (data) {
           setArticle(data)
         } else {
@@ -49,9 +51,16 @@ function ArticleDetail({ params }: { params: { id: string } }) {
         setIsLoading(false)
       }
     }
-    
+
+    // Fetch saved articles from the local storage or database
+    const fetchSavedArticles = async () => {
+      const saved = await getSavedArticles()
+      setSavedArticles(saved)
+    }
+
+    fetchSavedArticles()
     fetchArticle()
-  }, [params.id])
+  }, [id])
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "Unknown date"
@@ -68,6 +77,41 @@ function ArticleDetail({ params }: { params: { id: string } }) {
 
   const handleBackClick = () => {
     router.back()
+  }
+
+  const handleSaveClick = async () => {
+    if (!article) return
+
+    let updatedSavedArticles = [...savedArticles]
+
+    if (savedArticles.includes(article.id)) {
+      // Remove article from saved list
+      updatedSavedArticles = updatedSavedArticles.filter((id) => id !== article.id)
+      await removeArticle(article.id)
+    } else {
+      // Add article to saved list
+      updatedSavedArticles.push(article.id)
+      await saveArticle(article)
+    }
+
+    setSavedArticles(updatedSavedArticles)
+  }
+
+  const getArticleContent = () => {
+    if (!article) return ""
+
+    switch (readingMode) {
+      case "brief":
+        return article.summary || article.description || article.full_text || "No summary available."
+      case "standard":
+        return article.full_text || "No content available for this article."
+      case "deep":
+        return article.full_text
+          ? `${article.full_text}\n\n## Analysis\n${article.analysis || "No in-depth analysis available for this article."}`
+          : "No content available for this article."
+      default:
+        return article.full_text || "No content available for this article."
+    }
   }
 
   if (isLoading) {
@@ -121,55 +165,73 @@ function ArticleDetail({ params }: { params: { id: string } }) {
         {article && (
           <article>
             <div className="mb-6">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-4 mb-4">
                 <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-                    {(() => {
-                      const category = categories.find((i) => i.value === article.category);
-                      return category ? `${category.name} ${category.emoji} ` : "📰 News";
-                    })()}
+                  {(() => {
+                    const category = categories.find((i) => i.value === article.category)
+                    return category ? `${category.name} ${category.emoji}` : "📰 News"
+                  })()}
                 </Badge>
+
                 <div className="flex items-center text-sm text-gray-500">
                   <Clock className="h-4 w-4 mr-1" />
                   {formatDate(article.published_date)}
                 </div>
+
+                <Button variant="outline" size="icon" onClick={handleSaveClick} className="ml-auto">
+                  {savedArticles.includes(article.id) ? (
+                    <BookmarkCheck className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <Bookmark className="h-5 w-5 text-gray-500" />
+                  )}
+                </Button>
               </div>
-              
+
               <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
                 {article.title || "Untitled Article"}
               </h1>
-              
+
               {article.urlToImage && (
                 <div className="relative h-64 md:h-96 overflow-hidden rounded-lg mb-8">
                   <Image
                     fill={true}
-                    src={article.urlToImage}
+                    src={article.urlToImage || "/placeholder.svg"}
                     alt={article.title || "Article Image"}
                     className="object-cover"
                   />
                 </div>
               )}
-              
-              <div className="prose prose-lg max-w-none">
-                {article.full_text ? (
-                  <Markdown remarkPlugins={[remarkGfm]}>{article.full_text}</Markdown>
-                ) : (
-                  <p className="text-gray-600">{article.description || "No content available."}</p>
-                )}
-              </div>
-              
-              {article.url && (
-                <div className="mt-12 pt-6 border-t border-gray-200">
-                  <Button
-                    variant="outline"
-                    className="gap-2 text-[#FF7E77] hover:text-[#FF5951] hover:bg-[#FFF5F5] border-[#FFDED9]"
-                    asChild
+
+               {/* Reading Modes */}
+               <div className="mb-6">
+                <h2 className="text-xl font-bold mb-3">Reading Modes</h2>
+                <div className="grid gap-3">
+                  <button
+                    className={`text-left p-4 rounded-lg border transition ${readingMode === "brief" ? "bg-pink-100 border-pink-200" : "bg-white hover:bg-gray-50"}`}
+                    onClick={() => setReadingMode("brief")}
                   >
-                    <a href={article.url} target="_blank" rel="noopener noreferrer">
-                      View original source <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
+                    <span className="font-bold">Brief-</span> Quick, easy-to-read summaries with key takeaways
+                  </button>
+
+                  <button
+                    className={`text-left p-4 rounded-lg border transition ${readingMode === "standard" ? "bg-gray-100 border-gray-200" : "bg-white hover:bg-gray-50"}`}
+                    onClick={() => setReadingMode("standard")}
+                  >
+                    <span className="font-bold">Standard-</span> Our standard news articles with essential details
+                  </button>
+
+                  <button
+                    className={`text-left p-4 rounded-lg border transition ${readingMode === "deep" ? "bg-gray-100 border-gray-200" : "bg-white hover:bg-gray-50"}`}
+                    onClick={() => setReadingMode("deep")}
+                  >
+                    <span className="font-bold">Deep Dive-</span> Comprehensive analysis and in-depth reporting
+                  </button>
                 </div>
-              )}
+              </div>
+
+              <div className="prose prose-lg max-w-none">
+                <Markdown remarkPlugins={[remarkGfm]}>{getArticleContent()}</Markdown>
+              </div>
             </div>
           </article>
         )}
@@ -178,4 +240,4 @@ function ArticleDetail({ params }: { params: { id: string } }) {
   )
 }
 
-export default ArticleDetail;
+export default ArticleDetail
