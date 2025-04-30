@@ -17,6 +17,7 @@ import LoadingArticleGeneration from "./components/LoadingArticlesGeneration"
 import CategoryFilters from "./components/CategoryFilters"
 import { Badge } from "@/components/ui/badge"
 import { User } from "lucide-react"
+import { saveUserArticles, removeUserSavedArticle, getUserSavedArticles, saveLastVisitedArticle } from "@/lib/amplifyConfig"
 
 const categories = [
   { name: "Breaking News & Current Events 🌟", value: "general" }, //YES - General
@@ -49,6 +50,7 @@ function Explore() {
   const [activeCategory, setActiveCategory] = useState<string[]>([])
   const [sortOption, setSortOption] = useState("newest")
   const [preferencesApplied, setPreferencesApplied] = useState(false);
+  const [savedArticles, setSavedArticles] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -60,10 +62,9 @@ function Explore() {
           setArticles(data)
           setFilteredArticles(data)
         }
+        setIsArticlesLoading(false)
       } catch (err) {
         console.error("Error fetching articles:", err)
-      } finally {
-        setIsArticlesLoading(false)
       }
     }
     fetchArticles()
@@ -92,12 +93,6 @@ function Explore() {
       )
     }
 
-    // if (activeCategory) {
-    //   filtered = filtered.filter(
-    //     (article) => (article.category || "Uncategorized") === activeCategory
-    //   )
-    // }
-
     if (activeCategory.length > 0) {
       filtered = filtered.filter((article) => {
         const articleCategory = article.category || "Uncategorized"
@@ -118,6 +113,16 @@ function Explore() {
     setFilteredArticles(filtered)
     // console.log("Filtered articles:", filtered)
   }, [prompt, articles, activeCategory, sortOption])
+  
+  useEffect(() => {
+    if (!user) return
+
+    const fetchSavedArticles = async () => {
+      const saved = await getUserSavedArticles(user.userId)
+      setSavedArticles(saved?.map((item: any) => item.title) || [])
+    }
+    fetchSavedArticles()
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -182,8 +187,10 @@ function Explore() {
       setActiveCategory(filter);
   }
 
-  const handleArticleClick = (articleId: string) => {
-    router.push(`/explore/${encodeURIComponent(articleId)}`)
+  const handleArticleClick = (article: any) => {
+    if (!user) return
+    saveLastVisitedArticle(user.userId, article);
+    router.push(`/explore/${encodeURIComponent(article.title)}`)
   }
 
   const resetFilters = () => {
@@ -200,7 +207,7 @@ function Explore() {
 
   useEffect(() => {
     if (!loading && user && !preferencesApplied) {
-      console.log("Applying user preferences...");
+      // console.log("Applying user preferences...");
       if (user && Array.isArray(user.preferences)) {
         setActiveCategory(user.preferences);
       } else {
@@ -219,9 +226,24 @@ function Explore() {
     )
   }
 
+  
+
   if (!user) {
     return null;
   }
+
+  const handleSaveClick = async (article: any) => {
+    if (!user) return;
+
+    const isSaved = savedArticles.includes(article.title);
+    if (!isSaved) {
+      await saveUserArticles(user.userId, article);
+      setSavedArticles((prev) => [...prev, article.title]);
+    } else {
+      await removeUserSavedArticle(user.userId, article.title);
+      setSavedArticles((prev) => prev.filter((title) => title !== article.title));
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -333,6 +355,8 @@ function Explore() {
               <ArticleGrid 
                 articles={filteredArticles} 
                 handleArticleClick={handleArticleClick} 
+                savedArticles={savedArticles}
+                handleSaveClick={handleSaveClick}
               />
             )}
           </TabsContent>

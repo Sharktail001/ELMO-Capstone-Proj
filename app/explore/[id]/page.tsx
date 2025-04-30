@@ -10,7 +10,6 @@ import Image from "next/image"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Skeleton } from "@/components/ui/skeleton"
-import { saveArticle, removeArticle, getSavedArticles } from "@/lib/savedArticles"
 import { useAuth } from "@/lib/useAuth"
 
 const categories = [
@@ -59,7 +58,6 @@ function ArticleDetail() {
       if (!user) return
       const saved = await getUserSavedArticles(user.userId)
       setSavedArticles(saved?.map((item: any) => item.title) || [])
-      console.log("Saved Articles2:", savedArticles)
     }
 
     fetchSavedArticles()

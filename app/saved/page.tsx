@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getSavedArticles } from "@/lib/savedArticles"
 import ArticleGrid from "../explore/components/ArticleGrid"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -22,10 +21,9 @@ const SavedArticles = () => {
       if (!user) return
       const saved = await getUserSavedArticles(user.userId)
       setSavedArticles(saved || [])
+      setIsLoading(false)
     } catch (error) {
       setError("Failed to fetch saved articles.")
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -33,8 +31,8 @@ const SavedArticles = () => {
     fetchSavedArticles()
   }, [user])
 
-  const handleArticleClick = (id: string) => {
-    router.push(`/saved/${id}`)
+  const handleArticleClick = (article: any) => {
+    router.push(`/saved/${article.title}`)
   }
 
   if (isLoading) {
@@ -51,7 +49,13 @@ const SavedArticles = () => {
       {savedArticles.length > 0 ? (
         <ArticleGrid
           articles={savedArticles}
+          savedArticles={savedArticles.map(article => article.title).filter((id): id is string => id !== undefined)} // Pass only the IDs as required
           handleArticleClick={handleArticleClick} // Pass the click handler to the grid
+          handleSaveClick={(articleId: string) => {
+            if (user?.userId) {
+              removeUserSavedArticle(user.userId, articleId)
+            }
+          }} // Provide a handler for saving/removing articles
         />
       ) : (
         <div className="text-center py-12">
