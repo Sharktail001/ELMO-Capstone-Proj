@@ -208,38 +208,6 @@ function Explore() {
 
   useEffect(() => {
     if (!loading && user && !preferencesApplied) {
-      console.log("Applying user preferences...");
-      if (user && Array.isArray(user.preferences)) {
-        setActiveCategory(user.preferences);
-      } else {
-        setActiveCategory([]);
-      }
-      setPreferencesApplied(true);
-      localStorage.setItem("preferencesApplied", "true");
-    }
-  }, [loading, user, preferencesApplied]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return null;
-  }
-
-  useEffect(() => {
-    const storedPreferencesApplied = localStorage.getItem("preferencesApplied");
-    if (storedPreferencesApplied === "true") {
-      setPreferencesApplied(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!loading && user && !preferencesApplied) {
       // console.log("Applying user preferences...");
       if (user && Array.isArray(user.preferences)) {
         setActiveCategory(user.preferences);

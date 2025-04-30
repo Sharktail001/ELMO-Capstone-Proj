@@ -38,17 +38,6 @@ export default function LandingPage() {
           <div className="flex items-center">
             <h1 className="text-2xl font-bold tracking-tighter">ELMO</h1>
           </div>
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="#features" className="text-sm font-medium hover:text-[#FF7E77] transition-colors">
-              Features
-            </Link>
-            <Link href="#reading-modes" className="text-sm font-medium hover:text-[#FF7E77] transition-colors">
-              Reading Modes
-            </Link>
-            <Link href="#about" className="text-sm font-medium hover:text-[#FF7E77] transition-colors">
-              About
-            </Link>
-          </nav>
           <div className="flex items-center space-x-4">
             <Link href="/authentication">
               <Button variant="outline" className="rounded-full">
@@ -93,7 +82,7 @@ export default function LandingPage() {
           </div>
           <div className="relative h-[400px] md:h-[500px] rounded-xl overflow-hidden shadow-2xl">
             <div className="absolute inset-0 bg-gradient-to-br from-[#FF7E77]/10 to-[#FF7E77]/30 z-10 rounded-xl" />
-            <Image src="/placeholder.svg?height=500&width=400" alt="Elmo News App" fill className="object-cover" />
+            <Image src="/magnifying.gif?height=500&width=400" alt="Elmo News App" fill className="object-cover" />
           </div>
         </div>
       </section>
@@ -163,14 +152,64 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Categories Section */}
+      <section id="categories" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tighter mb-4">Explore by category</h2>
+            <p className="text-lg text-gray-600">
+              Discover news across a wide range of topics tailored to your interests.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {/* Breaking News & Current Events */}
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-xl border border-amber-200 text-center hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+              <div className="text-4xl mb-3">🌟</div>
+              <h3 className="font-medium text-sm md:text-base">Breaking News & Current Events</h3>
+            </div>
+
+            {/* Technology & Innovation */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 text-center hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+              <div className="text-4xl mb-3">🎮</div>
+              <h3 className="font-medium text-sm md:text-base">Technology & Innovation</h3>
+            </div>
+
+            {/* Science */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 text-center hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+              <div className="text-4xl mb-3">🧪</div>
+              <h3 className="font-medium text-sm md:text-base">Science</h3>
+            </div>
+
+            {/* Health & Wellness */}
+            <div className="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl border border-red-200 text-center hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+              <div className="text-4xl mb-3">💊</div>
+              <h3 className="font-medium text-sm md:text-base">Health & Wellness</h3>
+            </div>
+
+            {/* Entertainment & Media */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 text-center hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+              <div className="text-4xl mb-3">🎭</div>
+              <h3 className="font-medium text-sm md:text-base">Entertainment & Media</h3>
+            </div>
+
+            {/* Sports & Lifestyle */}
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200 text-center hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+              <div className="text-4xl mb-3">🏈</div>
+              <h3 className="font-medium text-sm md:text-base">Sports & Lifestyle</h3>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* App Preview Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
-              <div className="relative h-[500px] md:h-[600px] rounded-xl overflow-hidden shadow-xl">
+              <div className="relative h-[500px] md:h-[600px] rounded-xl overflow-hidden shadow-2xl shadow-gray-300">
                 <Image
-                  src="/placeholder.svg?height=600&width=400"
+                  src="/puzzle.gif?height=600&width=400"
                   alt="Elmo App Interface"
                   fill
                   className="object-cover"
@@ -254,17 +293,17 @@ export default function LandingPage() {
               <h4 className="font-medium mb-4">Product</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
+                  <Link href="#features" className="text-gray-600 hover:text-[#FF7E77]">
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
+                  <Link href="#reading-modes" className="text-gray-600 hover:text-[#FF7E77]">
                     Reading Modes
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
+                  <Link href="#categories" className="text-gray-600 hover:text-[#FF7E77]">
                     Categories
                   </Link>
                 </li>
@@ -276,17 +315,7 @@ export default function LandingPage() {
               <ul className="space-y-2">
                 <li>
                   <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
                     Team
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
-                    Careers
                   </Link>
                 </li>
               </ul>
@@ -295,16 +324,6 @@ export default function LandingPage() {
             <div>
               <h4 className="font-medium mb-4">Legal</h4>
               <ul className="space-y-2">
-                <li>
-                  <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
-                    Terms
-                  </Link>
-                </li>
                 <li>
                   <Link href="#" className="text-gray-600 hover:text-[#FF7E77]">
                     Cookie Policy
