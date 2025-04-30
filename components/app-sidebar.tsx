@@ -5,6 +5,8 @@ import { useEffect, useState } from "react"
 import { Frame, Map, PieChart, Settings2, SquareTerminal, Newspaper, Search } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import { NavProjects } from "@/components/nav-projects"
+import { NavSecondary } from "@/components/nav-secondary"
 import {
   Sidebar,
   SidebarContent,
@@ -70,6 +72,24 @@ const data = {
       ],
     },
   ],
+  navSecondary: [],
+  projects: [
+    {
+      name: "Design Engineering",
+      url: "#",
+      icon: Frame,
+    },
+    {
+      name: "Sales & Marketing",
+      url: "#",
+      icon: PieChart,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: Map,
+    },
+  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -108,7 +128,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent className="[&_.sidebar-group-label]:text-xs [&_.sidebar-group-label]:font-medium [&_.sidebar-group-label]:text-muted-foreground [&_[data-active=true]]:text-[#FF7E77] [&_[data-active=true]_svg]:text-[#FF7E77] [&_a:hover_svg]:text-[#FF7E77]">
         <NavMain items={data.navMain} />
+        <SidebarSeparator className="my-2" />
+        <NavProjects projects={data.projects} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+
+      <SidebarSeparator />
 
       <SidebarFooter>
         <NavUser user={data.user} />
