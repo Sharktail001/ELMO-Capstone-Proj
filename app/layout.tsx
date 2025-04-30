@@ -11,6 +11,9 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Elmo",
   description: "Big Stories Little Details",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

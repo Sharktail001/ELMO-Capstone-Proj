@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 
-// This is the directory where your articles are stored
-const ARTICLES_DIR = path.join(process.cwd(), "articles");
-
-// Default model to use
 const AI_MODEL = "deepseek-r1:14b";
+const LOCALHOST_IP = "https://workable-lemur-primary.ngrok-free.app";
+const EXTERNAL_API_URL =
+  "https://e5e6ofaqlj.execute-api.us-east-1.amazonaws.com/prod";
+const API_KEY = "YsPr9O9Sww4g92Hmge3Va7ZxcVac04f05jn6tJ5q";
 
 export const MARKDOWN_INSTRUCTIONS = `
 Follow these guidelines to ensure clarity, readability, and consistency:
@@ -67,21 +65,55 @@ For more insights, visit [OpenAI](https://openai.com).
 Now, generate a well-structured Markdown article based on the topic: **{INSERT TOPIC HERE}**
 `;
 
-// Localhost IP
-const LOCALHOST_IP = "https://workable-lemur-primary.ngrok-free.app";
+async function fetchCuratedArticles(
+  prompt: string,
+  user_id = "123456",
+  curatedId = "12345678"
+): Promise<string> {
+  try {
+    const response = await fetch(`${EXTERNAL_API_URL}`, {
+      method: "POST",
+      headers: {
+        "x-api-key": API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: prompt,
+        user_id: user_id,
+        curated_id: curatedId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`External API responded with ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    const articles = data?.body?.articles ?? [];
+
+    const fullTextContent = articles
+      .map((article: any) => article.full_text || "")
+      .join("\n\n");
+
+    console.log("Fetched articles:", articles);
+    console.log("Full text content:", fullTextContent);
+    return fullTextContent;
+  } catch (error) {
+    console.error("Failed to fetch from external API:", error);
+    return "";
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const { prompt } = await request.json();
-
-    // Create a streaming response
     const encoder = new TextEncoder();
 
     return new Response(
       new ReadableStream({
         async start(controller) {
           try {
-            // Check if Ollama is running
             const ollamaCheck = await fetch(`${LOCALHOST_IP}/api/version`)
               .then((res) => res.ok)
               .catch(() => false);
@@ -91,28 +123,36 @@ export async function POST(request: NextRequest) {
               return;
             }
 
-            // Prepare articles content
-            const articleFiles = await fs.readdir(ARTICLES_DIR);
-            const articles = await Promise.all(
-              articleFiles
-                .filter((file) => file.endsWith(".txt") || file.endsWith(".md"))
-                .map(async (file) => {
-                  const filePath = path.join(ARTICLES_DIR, file);
-                  const content = await fs.readFile(filePath, "utf-8");
-                  return {
-                    title: file.replace(/\.(txt|md)$/, ""),
-                    content,
-                  };
-                })
-            );
-            const articlesContent = articles
-              .map(
-                (article) =>
-                  `Title: ${article.title}\n\nContent:\n${article.content}\n\n`
-              )
-              .join("---\n");
+            const curatedArticle = await fetchCuratedArticles(prompt);
 
-            // Create the fetch request to Ollama for streaming
+            const ollamaPrompt = `You are an expert content writer. Based on the following reference articles, write a comprehensive and cohesive article on the topic: "${prompt}".
+
+${MARKDOWN_INSTRUCTIONS}
+
+Strictly follow these additional rules:
+- The article **must** start with a large title using a single '#' (Markdown h1).
+- **No other heading** in the article should use '#'. Use only '##' or '###' for section headings.
+- Ensure the main title is the **largest and most prominent** heading.
+- Integrate as much information as possible from the reference articles. **Do not omit important details**.
+- Present the content in a logically flowing and unified article, not a summary or bullet dump.
+- Maintain proper Markdown formatting and structure.
+- Do not add your own research or knowledge — use only the reference content provided.
+- Write fluently and clearly in English only.
+- You must only respond in English, regardless of the content or language found in the reference articles.
+- Do not include any non-English words, phrases, or translations in the output.
+- If non-English content appears in the reference articles, summarize or paraphrase it in English only.
+- Do **not fabricate** facts, examples, or content not found in the reference articles.
+- Do **not hallucinate** or guess information to meet a size requirement.
+- You may expand or elaborate only on what is present in the articles, using paraphrasing or synthesis.
+- Aim to write a **complete and informative article**, not a short summary, but always stay grounded in the reference material.
+- If there is limited content, structure and explain it fully rather than adding unrelated filler.
+
+Reference Articles:
+${curatedArticle}
+
+Write the full Markdown article for: "${prompt}"
+`;
+
             const response = await fetch(`${LOCALHOST_IP}/api/generate`, {
               method: "POST",
               headers: {
@@ -120,49 +160,27 @@ export async function POST(request: NextRequest) {
               },
               body: JSON.stringify({
                 model: AI_MODEL,
-                prompt: `You are an expert content writer. Based on the following reference articles, write a new comprehensive article about "${prompt}".
-                 ${MARKDOWN_INSTRUCTIONS}
-                 Use the writing style, tone, and structure from these articles, and use snippets from the articles as much as you can.
-                 Incorporate relevant insights and patterns from the source articles while maintaining originality.
-                 Do not use the your own knowledge or research. Only answer based on the provided articles.
-                 Also please only respond in English.
-                 
-                 Reference Articles:
-                 ${articlesContent}
-                 
-                 Write a well-structured, engaging article about "${prompt}":`,
-                stream: true,
+                prompt: ollamaPrompt,
+                stream: false,
                 stop: ["<think></think>"],
               }),
             });
 
-            // Handle the streaming response
-            if (!response.body) {
-              controller.error(new Error("No response body"));
+            if (!response.ok) {
+              controller.error(
+                new Error(`Ollama responded with ${response.status}`)
+              );
               return;
             }
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-
-            while (true) {
-              const { done, value } = await reader.read();
-
-              if (done) {
-                controller.close();
-                break;
-              }
-
-              const chunk = decoder.decode(value);
-              try {
-                const parsedChunk = JSON.parse(chunk);
-                if (parsedChunk.response) {
-                  controller.enqueue(encoder.encode(parsedChunk.response));
-                }
-              } catch (parseError) {
-                // If parsing fails, it might be a partial JSON or non-JSON response
-                console.warn("Error parsing chunk:", parseError);
-              }
+            const responseData = await response.json();
+            if (responseData && responseData.response) {
+              controller.enqueue(encoder.encode(responseData.response));
+              controller.close(); // ✅ This line fixes the hanging issue
+            } else {
+              controller.error(
+                new Error("No response content received from Ollama")
+              );
             }
           } catch (error) {
             console.error("Streaming error:", error);

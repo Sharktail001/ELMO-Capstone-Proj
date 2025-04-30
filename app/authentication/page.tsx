@@ -17,11 +17,8 @@ export default function AuthenticationPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-background">
       <div className="w-full max-w-md p-6 md:p-10">
         <div className="flex justify-center mb-6">
-          <a href="#" className="flex items-center gap-2 font-medium">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Newspaper className="size-4" />
-            </div>
-            ELMO Inc.
+          <a href="/" className="flex items-center gap-2 text-2xl font-bold tracking-tighter">
+            ELMO
           </a>
         </div>
 
