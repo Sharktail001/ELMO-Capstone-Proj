@@ -82,16 +82,21 @@ export function NavProjects() {
     fetchLastVisitedArticles()
   }, [pathname])
 
-  if (loading) {
-    return (
-      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel>Recently Viewed</SidebarGroupLabel>
-        <div className="flex justify-center items-center h-20">
-          <span>Loading...</span>
+if (loading) {
+  return (
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel>Recently Viewed</SidebarGroupLabel>
+      <div className="flex justify-center items-center h-20">
+        <div className="flex space-x-1">
+          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
         </div>
-      </SidebarGroup>
-    )
-  }
+      </div>
+    </SidebarGroup>
+  );
+}
+
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">

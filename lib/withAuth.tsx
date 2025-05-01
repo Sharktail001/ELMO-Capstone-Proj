@@ -17,8 +17,16 @@ export default function withAuth<P extends React.PropsWithChildren<{}>>(Componen
     }, [isAuthenticated, loading, router]);
 
     if (loading) {
-      return <p>Loading...</p>; // Show a loading indicator while checking auth state
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="h-6 w-6 border-4 border-gray-300 border-t-[#FF7E77] rounded-full animate-spin" />
+          </div>
+        </div>
+      );
     }
+    
+    
 
     return <Component {...props} />;
   };
