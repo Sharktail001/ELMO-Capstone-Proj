@@ -1,23 +1,28 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation"
-import { getTableItems } from "@/lib/amplifyConfig"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import withAuth from "../../lib/withAuth"
+import { useRouter } from "next/navigation";
+import { getTableItems } from "@/lib/amplifyConfig";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import withAuth from "../../lib/withAuth";
 import { useAuth } from "../../lib/useAuth";
-import SearchBar from "./components/SearchBar"
-import ErrorAlert from "./components/ErrorAlert"
-import ArticleContent from "./components/ArticleContent"
-import ArticleGrid from "./components/ArticleGrid"
-import LoadingArticles from "./components/LoadingArticles"
-import NoArticlesFound from "./components/NoArticlesFound"
-import LoadingArticleGeneration from "./components/LoadingArticlesGeneration"
-import CategoryFilters from "./components/CategoryFilters"
-import { Badge } from "@/components/ui/badge"
-import { User } from "lucide-react"
-import { saveUserArticles, removeUserSavedArticle, getUserSavedArticles, saveLastVisitedArticle } from "@/lib/amplifyConfig"
-import Pagination from "./components/Pagination"
+import SearchBar from "./components/SearchBar";
+import ErrorAlert from "./components/ErrorAlert";
+import ArticleContent from "./components/ArticleContent";
+import ArticleGrid from "./components/ArticleGrid";
+import LoadingArticles from "./components/LoadingArticles";
+import NoArticlesFound from "./components/NoArticlesFound";
+import LoadingArticleGeneration from "./components/LoadingArticlesGeneration";
+import CategoryFilters from "./components/CategoryFilters";
+import { Badge } from "@/components/ui/badge";
+import { User } from "lucide-react";
+import {
+  saveUserArticles,
+  removeUserSavedArticle,
+  getUserSavedArticles,
+  saveLastVisitedArticle,
+} from "@/lib/amplifyConfig";
+import Pagination from "./components/Pagination";
 
 const categories = [
   { name: "Breaking News & Current Events 🌟", value: "general" },
@@ -50,11 +55,11 @@ function Explore() {
   const [sortOption, setSortOption] = useState("newest");
   const [preferencesApplied, setPreferencesApplied] = useState(false);
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
-  
+
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1)
-  const [articlesPerPage] = useState(9) // Number of articles per page
-  const [paginatedArticles, setPaginatedArticles] = useState<any[]>([])
+  const [currentPage, setCurrentPage] = useState(1);
+  const [articlesPerPage] = useState(12); // Number of articles per page
+  const [paginatedArticles, setPaginatedArticles] = useState<any[]>([]);
 
   // Reference to track if article is currently being generated
   const generatingRef = useRef(false);
@@ -140,21 +145,23 @@ function Explore() {
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a.published_date).getTime() || 0;
       const dateB = new Date(b.published_date).getTime() || 0;
-      
-      return sortOption === "newest" ? dateB - dateA : dateA - dateB
-    })
 
-    setFilteredArticles(filtered)
-    setCurrentPage(1) // Reset to first page when filters change
-  }, [prompt, articles, activeCategory, sortOption])
-  
+      return sortOption === "newest" ? dateB - dateA : dateA - dateB;
+    });
+
+    setFilteredArticles(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [prompt, articles, activeCategory, sortOption]);
+
   // Update paginated articles when filtered articles or current page changes
   useEffect(() => {
-    const indexOfLastArticle = currentPage * articlesPerPage
-    const indexOfFirstArticle = indexOfLastArticle - articlesPerPage
-    setPaginatedArticles(filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle))
-  }, [filteredArticles, currentPage, articlesPerPage])
-  
+    const indexOfLastArticle = currentPage * articlesPerPage;
+    const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
+    setPaginatedArticles(
+      filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle)
+    );
+  }, [filteredArticles, currentPage, articlesPerPage]);
+
   useEffect(() => {
     setFilteredArticles(computeFilteredArticles);
   }, [computeFilteredArticles]);
@@ -164,11 +171,11 @@ function Explore() {
     if (!user) return;
 
     const fetchSavedArticles = async () => {
-      const saved = await getUserSavedArticles(user.userId)
-      setSavedArticles(saved?.map((item: any) => item.title) || [])
-    }
-    fetchSavedArticles()
-  }, [user])
+      const saved = await getUserSavedArticles(user.userId);
+      setSavedArticles(saved?.map((item: any) => item.title) || []);
+    };
+    fetchSavedArticles();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -269,13 +276,13 @@ function Explore() {
 
   // Page change handler
   const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber)
+    setCurrentPage(pageNumber);
     // Scroll to top of results when page changes
     window.scrollTo({
-      top: document.getElementById('results-header')?.offsetTop || 0,
-      behavior: 'smooth'
-    })
-  }
+      top: document.getElementById("results-header")?.offsetTop || 0,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const storedPreferencesApplied = localStorage.getItem("preferencesApplied");
@@ -343,7 +350,7 @@ function Explore() {
         </div>
       </div>
     );
-  }  
+  }
 
   if (!user) {
     return null;
@@ -441,8 +448,7 @@ function Explore() {
                 </h2>
                 <div className="flex items-center gap-3">
                   {(prompt || activeCategory.length > 0) && (
-
-                    <button 
+                    <button
                       onClick={resetFilters}
                       className="text-sm text-[#FF7E77] hover:text-[#FF5951] hover:underline"
                     >
@@ -463,22 +469,24 @@ function Explore() {
             {isArticlesLoading ? (
               <LoadingArticles />
             ) : filteredArticles.length === 0 ? (
-              <NoArticlesFound 
-                hasFilters={!!(prompt || activeCategory.length > 0)} 
-                onResetFilters={resetFilters} 
+              <NoArticlesFound
+                hasFilters={!!(prompt || activeCategory.length > 0)}
+                onResetFilters={resetFilters}
               />
             ) : (
               <>
-                <ArticleGrid 
-                  articles={paginatedArticles} 
-                  handleArticleClick={handleArticleClick} 
+                <ArticleGrid
+                  articles={paginatedArticles}
+                  handleArticleClick={handleArticleClick}
                   savedArticles={savedArticles}
                   handleSaveClick={handleSaveClick}
                 />
                 {filteredArticles.length > articlesPerPage && (
                   <Pagination
                     currentPage={currentPage}
-                    totalPages={Math.ceil(filteredArticles.length / articlesPerPage)}
+                    totalPages={Math.ceil(
+                      filteredArticles.length / articlesPerPage
+                    )}
                     onPageChange={handlePageChange}
                   />
                 )}
@@ -491,4 +499,4 @@ function Explore() {
   );
 }
 
-export default withAuth(Explore)
+export default withAuth(Explore);
