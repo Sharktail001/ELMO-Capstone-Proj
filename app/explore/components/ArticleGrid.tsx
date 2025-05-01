@@ -1,32 +1,51 @@
 // src/app/explore/components/ArticleGrid.tsx
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Clock, ExternalLink } from "lucide-react"
-import Image from "next/image"
-import { Bookmark, BookmarkCheck } from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Clock,
+  ExternalLink,
+  Bookmark,
+  BookmarkCheck,
+  Star,
+  Laptop,
+  TestTubeDiagonal,
+  Pill,
+  Plane,
+  Drama,
+  Paintbrush,
+  Leaf,
+  Pizza,
+  Award,
+} from "lucide-react";
+import Image from "next/image";
 
 interface ArticleGridProps {
-  articles: any[]
-  handleArticleClick: (article: any) => void
-  savedArticles: string[]
-  handleSaveClick: (article: any) => void
+  articles: any[];
+  handleArticleClick: (article: any) => void;
+  savedArticles: string[];
+  handleSaveClick: (article: any) => void;
 }
 
 const categories = [
-  { name: "Breaking News & Current Events", emoji: "🌟", value: "general" }, //YES - General
-  { name: "Technology & Innovation", emoji: "🎮", value: "technology" }, //YES
-  { name: "Science", emoji: "🧪", value: "science" }, //YES
-  { name: "Health & Wellness", emoji: "💊", value: "health" }, //YES
-  { name: "Travel", emoji: "✈️", value: "travel" },
-  { name: "Entertainment & Media", emoji: "🎭", value: "entertainment" }, //YES
-  { name: "Arts & Culture", emoji: "🎨", value: "art" },
-  { name: "Opinions & Deep Dives", emoji: "☘️", value: "min" },
-  { name: "Food", emoji: "🍕", value: "food" },
-  { name: "Sports & Lifestyle", emoji: "🏈", value: "sports" }, //YES
+  { name: "Breaking News & Current Events", value: "general", icon: Star },
+  { name: "Technology & Innovation", value: "technology", icon: Laptop },
+  { name: "Science", value: "science", icon: TestTubeDiagonal },
+  { name: "Health & Wellness", value: "health", icon: Pill },
+  { name: "Travel", value: "travel", icon: Plane },
+  { name: "Entertainment & Media", value: "entertainment", icon: Drama },
+  { name: "Arts & Culture", value: "art", icon: Paintbrush },
+  { name: "Opinions & Deep Dives", value: "min", icon: Leaf },
+  { name: "Food", value: "food", icon: Pizza },
+  { name: "Sports & Lifestyle", value: "sports", icon: Award },
 ];
 
-export default function ArticleGrid({ articles, handleArticleClick, savedArticles, handleSaveClick }: ArticleGridProps) {
+export default function ArticleGrid({
+  articles,
+  handleArticleClick,
+  savedArticles,
+  handleSaveClick,
+}: ArticleGridProps) {
   const formatDate = (dateString: string) => {
     if (!dateString) return "Unknown date";
     try {
@@ -51,19 +70,31 @@ export default function ArticleGrid({ articles, handleArticleClick, savedArticle
           <div className="h-48 bg-gray-100 relative overflow-hidden">
             <Image
               fill={true}
-              src={article.urlToImage || "/placeholder.svg?height=400&width=600"}
+              src={
+                article.urlToImage || "/placeholder.svg?height=400&width=600"
+              }
               alt={article.title || "Article Image"}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>
           <CardContent className="p-5">
             <div className="flex items-center gap-2 mb-3">
-              <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200, max-w-[50%]">
-                {(() => {
-                  const category = categories.find((i) => i.value === article.category);
-                  return category ? `${category.name} ${category.emoji}` : "📰 News";
-                })()}
-              </Badge>
+              {(() => {
+                const category = categories.find(
+                  (i) => i.value === article.category
+                );
+                return (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1 bg-gray-100 text-gray-700 hover:bg-gray-200 max-w-[90%] truncate"
+                  >
+                    {category?.icon && (
+                      <category.icon className="w-3.5 h-3.5" />
+                    )}
+                    <span className="truncate">{category?.name || "News"}</span>
+                  </Badge>
+                );
+              })()}
               <div className="flex items-center text-xs text-gray-500">
                 <Clock className="h-3 w-3 mr-1" />
                 {formatDate(article.published_date)}

@@ -1,12 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Serif_Display, Inter } from "next/font/google";
 import "./globals.css";
+
 import { AuthProvider } from "@/lib/AuthContext";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+// Load Google Fonts with CSS variable bindings
+const serifDisplay = DM_Serif_Display({
+  variable: "--font-title",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-body",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Elmo",
@@ -22,20 +35,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${serifDisplay.variable} ${inter.variable} font-body antialiased bg-background text-foreground h-full`}
       >
         <AuthProvider>
-          {/* Wrap the entire app with the SidebarProvider */}
           <SidebarProvider>
-            {/* Add Sidebar for all pages */}
-            <div className="flex">
+            <div className="flex h-full">
               <AppSidebar />
-              <SidebarInset>
-                {/* Render the content for authenticated users */}
-                {children}
-              </SidebarInset>
+              <SidebarInset>{children}</SidebarInset>
             </div>
           </SidebarProvider>
         </AuthProvider>

@@ -15,7 +15,19 @@ import NoArticlesFound from "./components/NoArticlesFound";
 import LoadingArticleGeneration from "./components/LoadingArticlesGeneration";
 import CategoryFilters from "./components/CategoryFilters";
 import { Badge } from "@/components/ui/badge";
-import { User } from "lucide-react";
+import {
+  User,
+  Star,
+  Laptop,
+  TestTube,
+  Pill,
+  Plane,
+  Theater,
+  Paintbrush,
+  Leaf,
+  Pizza,
+  Trophy,
+} from "lucide-react";
 import {
   saveUserArticles,
   removeUserSavedArticle,
@@ -25,16 +37,16 @@ import {
 import Pagination from "./components/Pagination";
 
 const categories = [
-  { name: "Breaking News & Current Events 🌟", value: "general" },
-  { name: "Technology & Innovation 🎮", value: "technology" },
-  { name: "Science 🧪", value: "science" },
-  { name: "Health & Wellness 💊", value: "health" },
-  { name: "Travel ✈️", value: "travel" },
-  { name: "Entertainment & Media 🎭", value: "entertainment" },
-  { name: "Arts & Culture 🎨", value: "art" },
-  { name: "Opinions & Deep Dives ☘️", value: "min" },
-  { name: "Food 🍕", value: "food" },
-  { name: "Sports & Lifestyle 🏈", value: "sports" },
+  { name: "Breaking News & Current Events", value: "general", icon: Star },
+  { name: "Technology & Innovation 💻", value: "technology", icon: Laptop },
+  { name: "Science 🧪", value: "science", icon: TestTube },
+  { name: "Health & Wellness 💊", value: "health", icon: Pill },
+  { name: "Travel ✈️", value: "travel", icon: Plane },
+  { name: "Entertainment & Media 🎭", value: "entertainment", icon: Theater },
+  { name: "Arts & Culture 🎨", value: "art", icon: Paintbrush },
+  { name: "Opinions & Deep Dives ☘️", value: "min", icon: Leaf },
+  { name: "Food 🍕", value: "food", icon: Pizza },
+  { name: "Sports & Lifestyle 🏈", value: "sports", icon: Trophy },
 ];
 
 function Explore() {
@@ -148,10 +160,13 @@ function Explore() {
 
       return sortOption === "newest" ? dateB - dateA : dateA - dateB;
     });
-
-    setFilteredArticles(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
   }, [prompt, articles, activeCategory, sortOption]);
+
+  // Update filtered articles when computation changes
+  useEffect(() => {
+    setFilteredArticles(computeFilteredArticles);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [computeFilteredArticles]);
 
   // Update paginated articles when filtered articles or current page changes
   useEffect(() => {
@@ -161,10 +176,6 @@ function Explore() {
       filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle)
     );
   }, [filteredArticles, currentPage, articlesPerPage]);
-
-  useEffect(() => {
-    setFilteredArticles(computeFilteredArticles);
-  }, [computeFilteredArticles]);
 
   // Fetch saved articles only once when user is loaded
   useEffect(() => {
@@ -329,15 +340,19 @@ function Explore() {
   const activeCategoryBadges = useMemo(() => {
     return categories
       .filter((cat) => activeCategory.includes(cat.value))
-      .map((cat) => (
-        <Badge
-          key={cat.value}
-          variant="secondary"
-          className="bg-gray-100 text-gray-700 hover:bg-gray-200 ml-2"
-        >
-          {cat.name}
-        </Badge>
-      ));
+      .map((cat) => {
+        const IconComponent = cat.icon;
+        return (
+          <Badge
+            key={cat.value}
+            variant="secondary"
+            className="bg-gray-100 text-gray-700 hover:bg-gray-200 ml-2 flex items-center gap-1"
+          >
+            <IconComponent size={14} />
+            {cat.name}
+          </Badge>
+        );
+      });
   }, [activeCategory]);
 
   if (loading) {
@@ -383,6 +398,7 @@ function Explore() {
             activeCategory={activeCategory}
             onSortChange={setSortOption}
             activeSortOption={sortOption}
+            categories={categories}
           />
         )}
 
@@ -430,15 +446,19 @@ function Explore() {
                           {prompt ? " in " : "in "}
                           {categories
                             .filter((cat) => activeCategory.includes(cat.value))
-                            .map((cat) => (
-                              <Badge
-                                key={cat.value}
-                                variant="secondary"
-                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 ml-2"
-                              >
-                                {cat.name}
-                              </Badge>
-                            ))}
+                            .map((cat) => {
+                              const IconComponent = cat.icon;
+                              return (
+                                <Badge
+                                  key={cat.value}
+                                  variant="secondary"
+                                  className="bg-gray-100 text-gray-700 hover:bg-gray-200 ml-2 flex items-center gap-1"
+                                >
+                                  <IconComponent size={14} />
+                                  {cat.name}
+                                </Badge>
+                              );
+                            })}
                         </>
                       )}
                     </>

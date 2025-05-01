@@ -15,6 +15,16 @@ import {
   BookmarkCheck,
   ExternalLink,
   Loader2,
+  Star,
+  Laptop,
+  TestTubeDiagonal,
+  Pill,
+  Plane,
+  Drama,
+  Paintbrush,
+  Leaf,
+  Pizza,
+  Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,16 +38,31 @@ const LOCALHOST_IP = "https://workable-lemur-primary.ngrok-free.app";
 const AI_MODEL = "deepseek-r1:14b";
 
 const categories = [
-  { name: "Breaking News & Current Events", emoji: "🌟", value: "general" },
-  { name: "Technology & Innovation", emoji: "🎮", value: "technology" },
-  { name: "Science", emoji: "🧪", value: "science" },
-  { name: "Health & Wellness", emoji: "💊", value: "health" },
-  { name: "Travel", emoji: "✈️", value: "travel" },
-  { name: "Entertainment & Media", emoji: "🎭", value: "entertainment" },
-  { name: "Arts & Culture", emoji: "🎨", value: "art" },
-  { name: "Opinions & Deep Dives", emoji: "☘️", value: "min" },
-  { name: "Food", emoji: "🍕", value: "food" },
-  { name: "Sports & Lifestyle", emoji: "🏈", value: "sports" },
+  {
+    name: "Breaking News & Current Events",
+    emoji: "",
+    value: "general",
+    icon: Star,
+  },
+  {
+    name: "Technology & Innovation",
+    emoji: "🎮",
+    value: "technology",
+    icon: Laptop,
+  },
+  { name: "Science", emoji: "🧪", value: "science", icon: TestTubeDiagonal },
+  { name: "Health & Wellness", emoji: "💊", value: "health", icon: Pill },
+  { name: "Travel", emoji: "✈️", value: "travel", icon: Plane },
+  {
+    name: "Entertainment & Media",
+    emoji: "🎭",
+    value: "entertainment",
+    icon: Drama,
+  },
+  { name: "Arts & Culture", emoji: "🎨", value: "art", icon: Paintbrush },
+  { name: "Opinions & Deep Dives", emoji: "☘️", value: "min", icon: Leaf },
+  { name: "Food", emoji: "🍕", value: "food", icon: Pizza },
+  { name: "Sports & Lifestyle", emoji: "🏈", value: "sports", icon: Award },
 ];
 
 function ArticleDetail() {
@@ -281,15 +306,22 @@ function ArticleDetail() {
               <div className="flex items-center gap-2 mb-4">
                 <Badge
                   variant="secondary"
-                  className="bg-gray-100 text-gray-700"
+                  className="bg-gray-100 text-gray-700 flex items-center gap-1"
                 >
                   {(() => {
                     const category = categories.find(
                       (i) => i.value === article.category
                     );
-                    return category
-                      ? `${category.name} ${category.emoji} `
-                      : "📰 News";
+                    if (category) {
+                      const Icon = category.icon;
+                      return (
+                        <>
+                          <Icon className="h-3 w-3 mr-1" />
+                          {category.name}
+                        </>
+                      );
+                    }
+                    return "📰 News";
                   })()}
                 </Badge>
                 <div className="flex items-center text-sm text-gray-500">
