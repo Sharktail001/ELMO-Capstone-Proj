@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation"
 import { getTableItems } from "@/lib/amplifyConfig"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -20,34 +20,34 @@ import { saveUserArticles, removeUserSavedArticle, getUserSavedArticles, saveLas
 import Pagination from "./components/Pagination"
 
 const categories = [
-  { name: "Breaking News & Current Events 🌟", value: "general" }, //YES - General
-  { name: "Technology & Innovation 🎮", value: "technology" }, //YES
-  { name: "Science 🧪", value: "science" }, //YES
-  { name: "Health & Wellness 💊", value: "health" }, //YES
+  { name: "Breaking News & Current Events 🌟", value: "general" },
+  { name: "Technology & Innovation 🎮", value: "technology" },
+  { name: "Science 🧪", value: "science" },
+  { name: "Health & Wellness 💊", value: "health" },
   { name: "Travel ✈️", value: "travel" },
-  { name: "Entertainment & Media 🎭", value: "entertainment" }, //YES
+  { name: "Entertainment & Media 🎭", value: "entertainment" },
   { name: "Arts & Culture 🎨", value: "art" },
   { name: "Opinions & Deep Dives ☘️", value: "min" },
   { name: "Food 🍕", value: "food" },
-  { name: "Sports & Lifestyle 🏈", value: "sports" }, //YES
+  { name: "Sports & Lifestyle 🏈", value: "sports" },
 ];
 
 function Explore() {
-  const router = useRouter()
+  const router = useRouter();
   const { user, loading } = useAuth();
-  const [prompt, setPrompt] = useState("")
-  const [rawArticle, setRawArticle] = useState("")
-  const [processedArticle, setProcessedArticle] = useState("")
-  const [thoughtContent, setThoughtContent] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [expandedThought, setExpandedThought] = useState(false)
-  const [articles, setArticles] = useState<any[]>([])
-  const [filteredArticles, setFilteredArticles] = useState<any[]>([])
-  const [isArticlesLoading, setIsArticlesLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("search")
-  const [activeCategory, setActiveCategory] = useState<string[]>([])
-  const [sortOption, setSortOption] = useState("newest")
+  const [prompt, setPrompt] = useState("");
+  const [rawArticle, setRawArticle] = useState("");
+  const [processedArticle, setProcessedArticle] = useState("");
+  const [thoughtContent, setThoughtContent] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedThought, setExpandedThought] = useState(false);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [filteredArticles, setFilteredArticles] = useState<any[]>([]);
+  const [isArticlesLoading, setIsArticlesLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("search");
+  const [activeCategory, setActiveCategory] = useState<string[]>([]);
+  const [sortOption, setSortOption] = useState("newest");
   const [preferencesApplied, setPreferencesApplied] = useState(false);
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
   
@@ -56,58 +56,88 @@ function Explore() {
   const [articlesPerPage] = useState(9) // Number of articles per page
   const [paginatedArticles, setPaginatedArticles] = useState<any[]>([])
 
+  // Reference to track if article is currently being generated
+  const generatingRef = useRef(false);
+  // Add a cursor effect for token-by-token generation
+  const [showCursor, setShowCursor] = useState(true);
+
+  // Set up cursor blink effect during generation
   useEffect(() => {
-    const fetchArticles = async () => {
-      setIsArticlesLoading(true)
+    let cursorInterval: NodeJS.Timeout | null = null;
+
+    if (isLoading) {
+      cursorInterval = setInterval(() => {
+        setShowCursor((prev) => !prev);
+      }, 500); // Blink every 500ms
+    } else {
+      setShowCursor(false); // Hide cursor when done
+    }
+
+    return () => {
+      if (cursorInterval) clearInterval(cursorInterval);
+    };
+  }, [isLoading]);
+
+  // Memoized function to fetch articles
+  const fetchArticles = useCallback(async () => {
+    if (isArticlesLoading) {
       try {
-        const data = await getTableItems("ELMO-Articles-Table")
-        // console.log("Fetched articles:", data)
+        const data = await getTableItems("ELMO-Articles-Table");
         if (data) {
-          setArticles(data)
-          setFilteredArticles(data)
+          setArticles(data);
+          // We'll set filtered articles in the useEffect that depends on articles
         }
-        setIsArticlesLoading(false)
       } catch (err) {
-        console.error("Error fetching articles:", err)
+        console.error("Error fetching articles:", err);
+      } finally {
+        setIsArticlesLoading(false);
       }
     }
-    fetchArticles()
-  }, [])
+  }, [isArticlesLoading]);
 
+  // Fetch articles on component mount only
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  // Process raw article once when it changes
   useEffect(() => {
     if (rawArticle) {
-      const thoughtMatch = rawArticle.match(/<Thinking>(.*?)<\/think>/s)
-      const markdownContent = rawArticle.replace(/<Thinking>.*?<\/think>/s, "").trim()
+      const thoughtMatch = rawArticle.match(/<Thinking>(.*?)<\/think>/s);
+      const markdownContent = rawArticle
+        .replace(/<Thinking>.*?<\/think>/s, "")
+        .trim();
 
       if (thoughtMatch) {
-        setThoughtContent(thoughtMatch[1].trim())
+        setThoughtContent(thoughtMatch[1].trim());
       }
-      setProcessedArticle(markdownContent)
+      setProcessedArticle(markdownContent);
     }
-  }, [rawArticle])
+  }, [rawArticle]);
 
-  useEffect(() => {
-    let filtered = [...articles]
+  // Memoize the filtered articles computation
+  const computeFilteredArticles = useMemo(() => {
+    let filtered = [...articles];
 
     if (prompt.trim()) {
       filtered = filtered.filter(
         (article) =>
           article.title?.toLowerCase().includes(prompt.toLowerCase()) ||
           article.description?.toLowerCase().includes(prompt.toLowerCase())
-      )
+      );
     }
 
     if (activeCategory.length > 0) {
       filtered = filtered.filter((article) => {
-        const articleCategory = article.category || "Uncategorized"
-        return activeCategory.includes(articleCategory)
-      })
-    }
-    else{
-      filtered = filtered.filter((article) => article.category !== null)
+        const articleCategory = article.category || "Uncategorized";
+        return activeCategory.includes(articleCategory);
+      });
+    } else {
+      filtered = filtered.filter((article) => article.category !== null);
     }
 
-    filtered.sort((a, b) => {
+    // Sort after filtering to improve performance
+    return [...filtered].sort((a, b) => {
       const dateA = new Date(a.published_date).getTime() || 0;
       const dateB = new Date(b.published_date).getTime() || 0;
       
@@ -126,7 +156,12 @@ function Explore() {
   }, [filteredArticles, currentPage, articlesPerPage])
   
   useEffect(() => {
-    if (!user) return
+    setFilteredArticles(computeFilteredArticles);
+  }, [computeFilteredArticles]);
+
+  // Fetch saved articles only once when user is loaded
+  useEffect(() => {
+    if (!user) return;
 
     const fetchSavedArticles = async () => {
       const saved = await getUserSavedArticles(user.userId)
@@ -136,17 +171,20 @@ function Explore() {
   }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!prompt.trim()) return
+    if (!prompt.trim()) return;
 
-    setIsLoading(true)
-    setRawArticle("")
-    setProcessedArticle("")
-    setThoughtContent("")
-    setError(null)
-    setExpandedThought(false)
-    setActiveTab("generated")
+    setIsLoading(true);
+    setRawArticle("");
+    setProcessedArticle("");
+    setThoughtContent("");
+    setError(null);
+    setExpandedThought(false);
+    setActiveTab("generated");
+
+    // Set generating flag
+    generatingRef.current = true;
 
     try {
       const response = await fetch("/api/generate", {
@@ -155,59 +193,79 @@ function Explore() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ prompt }),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to generate article")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate article");
       }
 
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
 
       if (!reader) {
-        throw new Error("No response body")
+        throw new Error("No response body");
       }
 
-      while (true) {
-        const { done, value } = await reader.read()
+      // For token-by-token display, we add each token directly to the state
+      while (generatingRef.current) {
+        const { done, value } = await reader.read();
 
-        if (done) break
+        if (done) {
+          generatingRef.current = false;
+          break;
+        }
 
-        const chunk = decoder.decode(value)
-        setRawArticle((prev) => prev + chunk)
+        const chunk = decoder.decode(value);
+
+        // Add each token directly to the raw article state
+        setRawArticle((prev) => prev + chunk);
       }
     } catch (error) {
-      console.error("Error generating article:", error)
-      setError(error instanceof Error ? error.message : "Failed to generate article")
-      setRawArticle("")
-      setProcessedArticle("")
+      console.error("Error generating article:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to generate article"
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
+      generatingRef.current = false;
     }
-  }
+  };
 
-  const handleCategoryChange = (category: string | null) => {
-      if (category === null){
-        setActiveCategory([])
-        return
-      };
-      const filter = activeCategory.includes(category)
-        ? activeCategory.filter((cat) => cat !== category)
-        : [...activeCategory, category];
-      setActiveCategory(filter);
-  }
+  // Cancel generation if needed
+  const cancelGeneration = () => {
+    generatingRef.current = false;
+    setIsLoading(false);
+  };
 
-  const handleArticleClick = (article: any) => {
-    if (!user) return
-    saveLastVisitedArticle(user.userId, article);
-    router.push(`/explore/${encodeURIComponent(article.title)}`)
-  }
+  const handleCategoryChange = useCallback((category: string | null) => {
+    if (category === null) {
+      setActiveCategory([]);
+      return;
+    }
 
-  const resetFilters = () => {
-    setPrompt("")
-    setActiveCategory([])
-  }
+    setActiveCategory((prev) => {
+      if (prev.includes(category)) {
+        return prev.filter((cat) => cat !== category);
+      } else {
+        return [...prev, category];
+      }
+    });
+  }, []);
+
+  const handleArticleClick = useCallback(
+    (article: any) => {
+      if (!user) return;
+      saveLastVisitedArticle(user.userId, article);
+      router.push(`/explore/${encodeURIComponent(article.title)}`);
+    },
+    [user, router]
+  );
+
+  const resetFilters = useCallback(() => {
+    setPrompt("");
+    setActiveCategory([]);
+  }, []);
 
   // Page change handler
   const handlePageChange = (pageNumber: number) => {
@@ -228,7 +286,6 @@ function Explore() {
 
   useEffect(() => {
     if (!loading && user && !preferencesApplied) {
-      // console.log("Applying user preferences...");
       if (user && Array.isArray(user.preferences)) {
         setActiveCategory(user.preferences);
       } else {
@@ -238,6 +295,43 @@ function Explore() {
       localStorage.setItem("preferencesApplied", "true");
     }
   }, [loading, user, preferencesApplied]);
+
+  const handleSaveClick = useCallback(
+    async (article: any) => {
+      if (!user) return;
+
+      try {
+        const isSaved = savedArticles.includes(article.title);
+        if (!isSaved) {
+          await saveUserArticles(user.userId, article);
+          setSavedArticles((prev) => [...prev, article.title]);
+        } else {
+          await removeUserSavedArticle(user.userId, article.title);
+          setSavedArticles((prev) =>
+            prev.filter((title) => title !== article.title)
+          );
+        }
+      } catch (err) {
+        console.error("Error saving/removing article:", err);
+      }
+    },
+    [user, savedArticles]
+  );
+
+  // Memoize active category badges
+  const activeCategoryBadges = useMemo(() => {
+    return categories
+      .filter((cat) => activeCategory.includes(cat.value))
+      .map((cat) => (
+        <Badge
+          key={cat.value}
+          variant="secondary"
+          className="bg-gray-100 text-gray-700 hover:bg-gray-200 ml-2"
+        >
+          {cat.name}
+        </Badge>
+      ));
+  }, [activeCategory]);
 
   if (loading) {
     return (
@@ -255,19 +349,6 @@ function Explore() {
     return null;
   }
 
-  const handleSaveClick = async (article: any) => {
-    if (!user) return;
-
-    const isSaved = savedArticles.includes(article.title);
-    if (!isSaved) {
-      await saveUserArticles(user.userId, article);
-      setSavedArticles((prev) => [...prev, article.title]);
-    } else {
-      await removeUserSavedArticle(user.userId, article.title);
-      setSavedArticles((prev) => prev.filter((title) => title !== article.title));
-    }
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <div className="container max-w-7xl mx-auto px-4 py-8">
@@ -279,16 +360,17 @@ function Explore() {
         </div>
 
         {/* Search Bar */}
-        <SearchBar 
-          prompt={prompt} 
-          setPrompt={setPrompt} 
-          handleSubmit={handleSubmit} 
-          isLoading={isLoading} 
+        <SearchBar
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handleSubmit={handleSubmit}
+          isLoading={isLoading}
+          cancelGeneration={cancelGeneration}
         />
 
         {/* Category Filters */}
         {!isArticlesLoading && (
-          <CategoryFilters 
+          <CategoryFilters
             articles={articles}
             onFilterChange={handleCategoryChange}
             activeCategory={activeCategory}
@@ -300,22 +382,31 @@ function Explore() {
         {error && <ErrorAlert message={error} />}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-7xl mx-auto">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="max-w-7xl mx-auto"
+        >
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
             <TabsTrigger value="search">Search Results</TabsTrigger>
-            <TabsTrigger value="generated" disabled={!processedArticle && !isLoading}>
+            <TabsTrigger
+              value="generated"
+              disabled={!processedArticle && !isLoading}
+            >
               Generated Article
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="generated" className="space-y-6">
             {isLoading && <LoadingArticleGeneration />}
-            {processedArticle && (
-              <ArticleContent 
+            {(processedArticle || isLoading) && (
+              <ArticleContent
                 processedArticle={processedArticle}
                 thoughtContent={thoughtContent}
                 expandedThought={expandedThought}
                 setExpandedThought={setExpandedThought}
+                isGenerating={isLoading}
+                showCursor={showCursor}
               />
             )}
           </TabsContent>
@@ -324,7 +415,7 @@ function Explore() {
             <div className="mb-6" id="results-header">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-800">
-                  {(prompt || activeCategory.length > 0) ? (
+                  {prompt || activeCategory.length > 0 ? (
                     <>
                       Results {prompt ? `for "${prompt}"` : ""}
                       {activeCategory.length > 0 && (
@@ -350,6 +441,7 @@ function Explore() {
                 </h2>
                 <div className="flex items-center gap-3">
                   {(prompt || activeCategory.length > 0) && (
+
                     <button 
                       onClick={resetFilters}
                       className="text-sm text-[#FF7E77] hover:text-[#FF5951] hover:underline"
@@ -359,7 +451,8 @@ function Explore() {
                   )}
                   {filteredArticles.length > 0 && (
                     <p className="text-sm text-gray-500">
-                      {filteredArticles.length} article{filteredArticles.length !== 1 ? "s" : ""} found
+                      {filteredArticles.length} article
+                      {filteredArticles.length !== 1 ? "s" : ""} found
                     </p>
                   )}
                 </div>
@@ -395,7 +488,7 @@ function Explore() {
         </Tabs>
       </div>
     </main>
-  )
+  );
 }
 
 export default withAuth(Explore)

@@ -127,32 +127,43 @@ export async function POST(request: NextRequest) {
 
             const ollamaPrompt = `You are an expert content writer. Based on the following reference articles, write a comprehensive and cohesive article on the topic: "${prompt}".
 
-${MARKDOWN_INSTRUCTIONS}
+            ${MARKDOWN_INSTRUCTIONS}
 
-Strictly follow these additional rules:
-- The article **must** start with a large title using a single '#' (Markdown h1).
-- **No other heading** in the article should use '#'. Use only '##' or '###' for section headings.
-- Ensure the main title is the **largest and most prominent** heading.
-- Integrate as much information as possible from the reference articles. **Do not omit important details**.
-- Present the content in a logically flowing and unified article, not a summary or bullet dump.
-- Maintain proper Markdown formatting and structure.
-- Do not add your own research or knowledge — use only the reference content provided.
-- Write fluently and clearly in English only.
-- You must only respond in English, regardless of the content or language found in the reference articles.
-- Do not include any non-English words, phrases, or translations in the output.
-- If non-English content appears in the reference articles, summarize or paraphrase it in English only.
-- Do **not fabricate** facts, examples, or content not found in the reference articles.
-- Do **not hallucinate** or guess information to meet a size requirement.
-- You may expand or elaborate only on what is present in the articles, using paraphrasing or synthesis.
-- Aim to write a **complete and informative article**, not a short summary, but always stay grounded in the reference material.
-- If there is limited content, structure and explain it fully rather than adding unrelated filler.
+            Strictly follow these additional rules:
+            - The article **must** start with a large title using a single '#' (Markdown h1).
+            - **No other heading** in the article should use '#'. Use only '##' or '###' for section headings.
+            - Ensure the main title is the **largest and most prominent** heading.
+            - Integrate as much information as possible from the reference articles. **Do not omit important details**.
+            - Present the content in a logically flowing and unified article, not a summary or bullet dump.
+            - Maintain proper Markdown formatting and structure.
+            - Do not add your own research or knowledge — use only the reference content provided.
+            - Write fluently and clearly in English only.
+            - You must only respond in English, regardless of the content or language found in the reference articles.
+            - Do not include any non-English words, phrases, or translations in the output.
+            - If non-English content appears in the reference articles, summarize or paraphrase it in English only.
+            - Do **not fabricate** facts, examples, or content not found in the reference articles.
+            - Do **not hallucinate** or guess information to meet a size requirement.
+            - You may expand or elaborate only on what is present in the articles, using paraphrasing or synthesis.
+            - Aim to write a **complete and informative article**, not a short summary, but always stay grounded in the reference material.
+            - If there is limited content, structure and explain it fully rather than adding unrelated filler.
 
-Reference Articles:
-${curatedArticle}
+            <Thinking>
+            First, let me analyze the reference articles to extract key information and plan my article structure:
+            - What's the main topic?
+            - What subtopics are covered?
+            - What key facts, examples, and details should I include?
+            - How should I organize this information logically?
+            
+            I'll organize this information into a cohesive article with proper Markdown formatting.
+            </think>
 
-Write the full Markdown article for: "${prompt}"
-`;
+            Reference Articles:
+            ${curatedArticle}
 
+            Write the full Markdown article for: "${prompt}"
+            `;
+
+            // Enable streaming mode from Ollama
             const response = await fetch(`${LOCALHOST_IP}/api/generate`, {
               method: "POST",
               headers: {
@@ -161,7 +172,7 @@ Write the full Markdown article for: "${prompt}"
               body: JSON.stringify({
                 model: AI_MODEL,
                 prompt: ollamaPrompt,
-                stream: false,
+                stream: true, // Enable streaming
                 stop: ["<think></think>"],
               }),
             });
@@ -173,15 +184,77 @@ Write the full Markdown article for: "${prompt}"
               return;
             }
 
-            const responseData = await response.json();
-            if (responseData && responseData.response) {
-              controller.enqueue(encoder.encode(responseData.response));
-              controller.close(); // ✅ This line fixes the hanging issue
-            } else {
-              controller.error(
-                new Error("No response content received from Ollama")
-              );
+            // Process the stream token by token
+            const reader = response.body?.getReader();
+            if (!reader) {
+              controller.error(new Error("No readable stream from Ollama"));
+              return;
             }
+
+            let thinkingMode = false;
+            let thinkingBuffer = "";
+            let streamClosed = false;
+
+            let accumulatedText = ""; // Buffer to accumulate stream tokens
+
+            while (!streamClosed) {
+              const { done, value } = await reader.read();
+              if (done) {
+                break;
+              }
+
+              try {
+                const text = new TextDecoder().decode(value);
+                const lines = text
+                  .split("\n")
+                  .filter((line) => line.trim() !== "");
+
+                // Accumulate valid tokens
+                for (const line of lines) {
+                  const trimmed = line.trim();
+                  if (trimmed) {
+                    accumulatedText += trimmed;
+
+                    // Try to parse accumulatedText only when it's potentially valid JSON
+                    try {
+                      const parsed = JSON.parse(accumulatedText);
+                      if (parsed.response) {
+                        const token = parsed.response;
+
+                        // Handle the "Thinking" marker if needed
+                        if (token.includes("<Thinking>")) {
+                          thinkingMode = true;
+                          thinkingBuffer = "<Thinking>";
+                          continue;
+                        } else if (thinkingMode && token.includes("</think>")) {
+                          thinkingMode = false;
+                          thinkingBuffer += "</think>";
+                          controller.enqueue(encoder.encode(thinkingBuffer));
+                          thinkingBuffer = "";
+                          continue;
+                        }
+
+                        // Process normal content
+                        if (!thinkingMode) {
+                          controller.enqueue(encoder.encode(token));
+                        }
+                      }
+
+                      // Reset the accumulatedText buffer after processing a complete chunk
+                      accumulatedText = "";
+                    } catch (parseErr) {
+                      console.warn("Skipping incomplete token:", trimmed);
+                    }
+                  }
+                }
+              } catch (e) {
+                console.warn("Stream chunk error:", e);
+                streamClosed = true;
+                controller.error(e); // Triggers closure
+              }
+            }
+
+            if (!streamClosed) controller.close();
           } catch (error) {
             console.error("Streaming error:", error);
             controller.error(error);
