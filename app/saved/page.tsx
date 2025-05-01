@@ -51,11 +51,15 @@ const SavedArticles = () => {
           articles={savedArticles}
           savedArticles={savedArticles.map(article => article.title).filter((id): id is string => id !== undefined)} // Pass only the IDs as required
           handleArticleClick={handleArticleClick} // Pass the click handler to the grid
-          handleSaveClick={(articleId: string) => {
+          handleSaveClick={(article: any) => {
             if (user?.userId) {
-              removeUserSavedArticle(user.userId, articleId)
+              removeUserSavedArticle(user.userId, article.title)
+              setIsLoading(true)
+              setTimeout(() => {
+                fetchSavedArticles()
+              }, 200)
             }
-          }} // Provide a handler for saving/removing articles
+          }}
         />
       ) : (
         <div className="text-center py-12">
