@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Search, MessageSquare, Bookmark, Settings, LogOut, ChevronRight, type LucideIcon } from "lucide-react"
+import { Home, Search, Bolt, MessageSquare, Bookmark, Settings, LogOut, ChevronRight, type LucideIcon } from "lucide-react"
 
 import {
   Collapsible,
@@ -22,13 +22,13 @@ import {
 const mainNavItems = [
   {
     title: "Home",
-    url: "/onboarding",
+    url: "/explore",
     icon: Home,
   },
   {
-    title: "Explore",
-    url: "/explore",
-    icon: Search,
+    title: "Preferences",
+    url: "/onboarding",
+    icon: Bolt,
     isActive: true,
   },
   {

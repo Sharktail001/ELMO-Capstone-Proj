@@ -1,26 +1,23 @@
-"use client";
+"use client"
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { getTableItems } from "@/lib/amplifyConfig";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import withAuth from "../../lib/withAuth";
+import { useRouter } from "next/navigation"
+import { getTableItems } from "@/lib/amplifyConfig"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import withAuth from "../../lib/withAuth"
 import { useAuth } from "../../lib/useAuth";
-import SearchBar from "./components/SearchBar";
-import ErrorAlert from "./components/ErrorAlert";
-import ArticleContent from "./components/ArticleContent";
-import ArticleGrid from "./components/ArticleGrid";
-import LoadingArticles from "./components/LoadingArticles";
-import NoArticlesFound from "./components/NoArticlesFound";
-import LoadingArticleGeneration from "./components/LoadingArticlesGeneration";
-import CategoryFilters from "./components/CategoryFilters";
-import { Badge } from "@/components/ui/badge";
-import {
-  saveUserArticles,
-  removeUserSavedArticle,
-  getUserSavedArticles,
-  saveLastVisitedArticle,
-} from "@/lib/amplifyConfig";
+import SearchBar from "./components/SearchBar"
+import ErrorAlert from "./components/ErrorAlert"
+import ArticleContent from "./components/ArticleContent"
+import ArticleGrid from "./components/ArticleGrid"
+import LoadingArticles from "./components/LoadingArticles"
+import NoArticlesFound from "./components/NoArticlesFound"
+import LoadingArticleGeneration from "./components/LoadingArticlesGeneration"
+import CategoryFilters from "./components/CategoryFilters"
+import { Badge } from "@/components/ui/badge"
+import { User } from "lucide-react"
+import { saveUserArticles, removeUserSavedArticle, getUserSavedArticles, saveLastVisitedArticle } from "@/lib/amplifyConfig"
+import Pagination from "./components/Pagination"
 
 const categories = [
   { name: "Breaking News & Current Events 🌟", value: "general" },
@@ -53,6 +50,11 @@ function Explore() {
   const [sortOption, setSortOption] = useState("newest");
   const [preferencesApplied, setPreferencesApplied] = useState(false);
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [articlesPerPage] = useState(9) // Number of articles per page
+  const [paginatedArticles, setPaginatedArticles] = useState<any[]>([])
 
   // Reference to track if article is currently being generated
   const generatingRef = useRef(false);
@@ -138,12 +140,21 @@ function Explore() {
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a.published_date).getTime() || 0;
       const dateB = new Date(b.published_date).getTime() || 0;
+      
+      return sortOption === "newest" ? dateB - dateA : dateA - dateB
+    })
 
-      return sortOption === "newest" ? dateB - dateA : dateA - dateB;
-    });
-  }, [prompt, articles, activeCategory, sortOption]);
-
-  // Update filtered articles only when the computed result changes
+    setFilteredArticles(filtered)
+    setCurrentPage(1) // Reset to first page when filters change
+  }, [prompt, articles, activeCategory, sortOption])
+  
+  // Update paginated articles when filtered articles or current page changes
+  useEffect(() => {
+    const indexOfLastArticle = currentPage * articlesPerPage
+    const indexOfFirstArticle = indexOfLastArticle - articlesPerPage
+    setPaginatedArticles(filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle))
+  }, [filteredArticles, currentPage, articlesPerPage])
+  
   useEffect(() => {
     setFilteredArticles(computeFilteredArticles);
   }, [computeFilteredArticles]);
@@ -153,15 +164,11 @@ function Explore() {
     if (!user) return;
 
     const fetchSavedArticles = async () => {
-      try {
-        const saved = await getUserSavedArticles(user.userId);
-        setSavedArticles(saved?.map((item: any) => item.title) || []);
-      } catch (err) {
-        console.error("Error fetching saved articles:", err);
-      }
-    };
-    fetchSavedArticles();
-  }, [user]); // Only re-run if user changes
+      const saved = await getUserSavedArticles(user.userId)
+      setSavedArticles(saved?.map((item: any) => item.title) || [])
+    }
+    fetchSavedArticles()
+  }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,6 +267,16 @@ function Explore() {
     setActiveCategory([]);
   }, []);
 
+  // Page change handler
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+    // Scroll to top of results when page changes
+    window.scrollTo({
+      top: document.getElementById('results-header')?.offsetTop || 0,
+      behavior: 'smooth'
+    })
+  }
+
   useEffect(() => {
     const storedPreferencesApplied = localStorage.getItem("preferencesApplied");
     if (storedPreferencesApplied === "true") {
@@ -318,11 +335,15 @@ function Explore() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="flex space-x-2">
+          <span className="w-3 h-3 bg-[#FF7E77] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+          <span className="w-3 h-3 bg-[#FF7E77] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+          <span className="w-3 h-3 bg-[#FF7E77] rounded-full animate-bounce"></span>
+        </div>
       </div>
     );
-  }
+  }  
 
   if (!user) {
     return null;
@@ -391,7 +412,7 @@ function Explore() {
           </TabsContent>
 
           <TabsContent value="search">
-            <div className="mb-6">
+            <div className="mb-6" id="results-header">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-800">
                   {prompt || activeCategory.length > 0 ? (
@@ -399,8 +420,18 @@ function Explore() {
                       Results {prompt ? `for "${prompt}"` : ""}
                       {activeCategory.length > 0 && (
                         <>
-                          {" in "}
-                          {activeCategoryBadges}
+                          {prompt ? " in " : "in "}
+                          {categories
+                            .filter((cat) => activeCategory.includes(cat.value))
+                            .map((cat) => (
+                              <Badge
+                                key={cat.value}
+                                variant="secondary"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200 ml-2"
+                              >
+                                {cat.name}
+                              </Badge>
+                            ))}
                         </>
                       )}
                     </>
@@ -410,7 +441,8 @@ function Explore() {
                 </h2>
                 <div className="flex items-center gap-3">
                   {(prompt || activeCategory.length > 0) && (
-                    <button
+
+                    <button 
                       onClick={resetFilters}
                       className="text-sm text-[#FF7E77] hover:text-[#FF5951] hover:underline"
                     >
@@ -431,17 +463,26 @@ function Explore() {
             {isArticlesLoading ? (
               <LoadingArticles />
             ) : filteredArticles.length === 0 ? (
-              <NoArticlesFound
-                hasFilters={!!(prompt || activeCategory.length > 0)}
-                onResetFilters={resetFilters}
+              <NoArticlesFound 
+                hasFilters={!!(prompt || activeCategory.length > 0)} 
+                onResetFilters={resetFilters} 
               />
             ) : (
-              <ArticleGrid
-                articles={filteredArticles}
-                handleArticleClick={handleArticleClick}
-                savedArticles={savedArticles}
-                handleSaveClick={handleSaveClick}
-              />
+              <>
+                <ArticleGrid 
+                  articles={paginatedArticles} 
+                  handleArticleClick={handleArticleClick} 
+                  savedArticles={savedArticles}
+                  handleSaveClick={handleSaveClick}
+                />
+                {filteredArticles.length > articlesPerPage && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(filteredArticles.length / articlesPerPage)}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
@@ -450,4 +491,4 @@ function Explore() {
   );
 }
 
-export default withAuth(Explore);
+export default withAuth(Explore)
