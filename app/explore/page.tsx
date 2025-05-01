@@ -59,19 +59,9 @@ function Explore() {
   // Reference to track if article is currently being generated
   const generatingRef = useRef(false);
   // Add a cursor effect for token-by-token generation
-  const [showCursor, setShowCursor] = useState(true);
-
   // Set up cursor blink effect during generation
   useEffect(() => {
     let cursorInterval: NodeJS.Timeout | null = null;
-
-    if (isLoading) {
-      cursorInterval = setInterval(() => {
-        setShowCursor((prev) => !prev);
-      }, 500); // Blink every 500ms
-    } else {
-      setShowCursor(false); // Hide cursor when done
-    }
 
     return () => {
       if (cursorInterval) clearInterval(cursorInterval);
@@ -232,12 +222,6 @@ function Explore() {
     }
   };
 
-  // Cancel generation if needed
-  const cancelGeneration = () => {
-    generatingRef.current = false;
-    setIsLoading(false);
-  };
-
   const handleCategoryChange = useCallback((category: string | null) => {
     if (category === null) {
       setActiveCategory([]);
@@ -365,7 +349,6 @@ function Explore() {
           setPrompt={setPrompt}
           handleSubmit={handleSubmit}
           isLoading={isLoading}
-          cancelGeneration={cancelGeneration}
         />
 
         {/* Category Filters */}
@@ -406,7 +389,6 @@ function Explore() {
                 expandedThought={expandedThought}
                 setExpandedThought={setExpandedThought}
                 isGenerating={isLoading}
-                showCursor={showCursor}
               />
             )}
           </TabsContent>
