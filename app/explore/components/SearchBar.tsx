@@ -1,17 +1,22 @@
 // src/app/explore/components/SearchBar.tsx
-"use client"
+"use client";
 
-import { Input } from "@/components/ui/input"
-import { Search, ArrowRight, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input";
+import { Search, ArrowRight, Loader2 } from "lucide-react";
 
 interface SearchBarProps {
-  prompt: string
-  setPrompt: (value: string) => void
-  handleSubmit: (e: React.FormEvent) => Promise<void>
-  isLoading: boolean
+  prompt: string;
+  setPrompt: (value: string) => void;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  isLoading: boolean;
 }
 
-export default function SearchBar({ prompt, setPrompt, handleSubmit, isLoading }: SearchBarProps) {
+export default function SearchBar({
+  prompt,
+  setPrompt,
+  handleSubmit,
+  isLoading,
+}: SearchBarProps) {
   return (
     <div className="relative max-w-2xl mx-auto mb-10">
       <form onSubmit={handleSubmit} className="group">
@@ -31,9 +36,13 @@ export default function SearchBar({ prompt, setPrompt, handleSubmit, isLoading }
           } hover:bg-[#FF5951]`}
           disabled={!prompt.trim() || isLoading}
         >
-          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <ArrowRight className="h-5 w-5" />
+          )}
         </button>
       </form>
     </div>
-  )
+  );
 }
