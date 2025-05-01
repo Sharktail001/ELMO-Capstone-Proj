@@ -19,7 +19,7 @@ import {
   Paintbrush,
   Leaf,
   Pizza,
-  Award,
+  Medal,
 } from "lucide-react";
 
 interface CategoryFiltersProps {
@@ -40,7 +40,7 @@ const categories = [
   { name: "Arts & Culture", value: "art", icon: Paintbrush },
   { name: "Opinions & Deep Dives", value: "min", icon: Leaf },
   { name: "Food", value: "food", icon: Pizza },
-  { name: "Sports & Lifestyle", value: "sports", icon: Award },
+  { name: "Sports & Lifestyle", value: "sports", icon: Medal },
 ];
 
 export default function CategoryFilters({
