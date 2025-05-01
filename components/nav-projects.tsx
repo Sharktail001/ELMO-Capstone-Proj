@@ -1,6 +1,19 @@
 "use client";
 
-import { Folder, Trash2, type LucideIcon } from "lucide-react";
+import {
+  Star,
+  Laptop,
+  TestTubeDiagonal,
+  Pill,
+  Plane,
+  Drama,
+  Paintbrush,
+  Leaf,
+  Pizza,
+  Medal,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 
 import {
   SidebarGroup,
@@ -21,11 +34,31 @@ import { useRouter, usePathname } from "next/navigation";
 
 export function NavProjects() {
   const [projects, setProjects] = useState<
-    { name: string; url: string; icon: LucideIcon }[]
+    { name: string; url: string; categoryIcon: LucideIcon }[]
   >([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const router = useRouter();
+
+  // Category mapping with Lucide icons
+  const categories = [
+    { icon: Star, value: "general" },
+    { icon: Laptop, value: "technology" },
+    { icon: TestTubeDiagonal, value: "science" },
+    { icon: Pill, value: "health" },
+    { icon: Plane, value: "travel" },
+    { icon: Drama, value: "entertainment" },
+    { icon: Paintbrush, value: "art" },
+    { icon: Leaf, value: "min" },
+    { icon: Pizza, value: "food" },
+    { icon: Medal, value: "sports" },
+  ];
+
+  // Helper function to get icon for a category
+  const getIconForCategory = (category: string): LucideIcon => {
+    const foundCategory = categories.find((c) => c.value === category);
+    return foundCategory ? foundCategory.icon : Star; // Default to Star icon if category not found
+  };
 
   const fetchLastVisitedArticles = async () => {
     if (user) {
@@ -59,7 +92,7 @@ export function NavProjects() {
         sortedArticles.map((article) => ({
           name: article.title,
           url: `/explore/${article.title}`,
-          icon: Folder,
+          categoryIcon: getIconForCategory(article.category || "general"),
         }))
       );
 
@@ -113,7 +146,7 @@ export function NavProjects() {
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
               <a href={item.url}>
-                <item.icon />
+                <item.categoryIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span>{item.name}</span>
               </a>
             </SidebarMenuButton>

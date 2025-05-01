@@ -1,16 +1,31 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { getTableItemById, getUserSavedArticles, saveUserArticles, removeUserSavedArticle, getUserSavedArticle } from "@/lib/amplifyConfig"
-import { ChevronLeft, Clock, Bookmark, BookmarkCheck } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import Markdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useAuth } from "@/lib/useAuth"
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import {
+  getTableItemById,
+  getUserSavedArticles,
+  saveUserArticles,
+  removeUserSavedArticle,
+} from "@/lib/amplifyConfig";
+import {
+  ChevronLeft,
+  Clock,
+  Bookmark,
+  BookmarkCheck,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/lib/useAuth";
+
+const LOCALHOST_IP = "https://workable-lemur-primary.ngrok-free.app";
+const AI_MODEL = "deepseek-r1:14b";
 
 const categories = [
   { name: "Breaking News & Current Events", emoji: "🌟", value: "general" },
@@ -23,99 +38,191 @@ const categories = [
   { name: "Opinions & Deep Dives", emoji: "☘️", value: "min" },
   { name: "Food", emoji: "🍕", value: "food" },
   { name: "Sports & Lifestyle", emoji: "🏈", value: "sports" },
-]
+];
 
 function ArticleDetail() {
-  const router = useRouter()
-  const { id } = useParams()
+  const router = useRouter();
+  const { id } = useParams();
   const { user, loading } = useAuth();
-  const [article, setArticle] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [savedArticles, setSavedArticles] = useState<string[]>([])
-  const [readingMode, setReadingMode] = useState<"brief" | "standard" | "deep">("standard")
+  const [article, setArticle] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [savedArticles, setSavedArticles] = useState<string[]>([]);
+  const [displayedContent, setDisplayedContent] = useState<string | null>(null);
+  const [isSimplifying, setIsSimplifying] = useState(false);
+  const [isExpanding, setIsExpanding] = useState(false);
+  const [aiResponse, setAiResponse] = useState<string>("");
+  const [isContentModified, setIsContentModified] = useState(false);
 
   useEffect(() => {
     const fetchArticle = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        if (!user) return
-        const data = await getUserSavedArticle(user.userId, decodeURIComponent(id as string))
+        const data = await getTableItemById(
+          "ELMO-Articles-Table",
+          decodeURIComponent(id as string)
+        );
         if (data) {
-          setArticle(data)
+          setArticle(data);
+          setDisplayedContent(data.full_text || null);
         } else {
-          setError("Article not found")
+          setError("Article not found");
         }
       } catch (err) {
-        console.error("Error fetching article:", err)
-        setError("Failed to load article")
+        console.error("Error fetching article:", err);
+        setError("Failed to load article");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     // Fetch saved articles from the local storage or database
     const fetchSavedArticles = async () => {
-      if (!user) return
-      const saved = await getUserSavedArticles(user.userId)
-      setSavedArticles(saved?.map((item: any) => item.title) || [])
-    }
+      if (!user) return;
+      const saved = await getUserSavedArticles(user.userId);
+      setSavedArticles(saved?.map((item: any) => item.title) || []);
+    };
 
-    fetchSavedArticles()
-    fetchArticle()
-  }, [id, user])
+    fetchSavedArticles();
+    fetchArticle();
+  }, [id, user]);
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "Unknown date"
+    if (!dateString) return "Unknown date";
     try {
       return new Date(dateString).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
-      })
+      });
     } catch (e) {
-      return "Unknown date"
+      return "Unknown date";
     }
-  }
+  };
 
   const handleBackClick = () => {
-    router.back()
-  }
+    router.back();
+  };
 
   const handleSaveClick = async () => {
-    if(!article) return
+    if (!article) return;
     if (!user) return;
 
     const tempsavedArticles = await getUserSavedArticles(user.userId);
     console.log("Saved Articles:", tempsavedArticles);
-    if (tempsavedArticles){
-      const isSaved = tempsavedArticles.some((savedArticle: any) => savedArticle.title === article.title);
+    if (tempsavedArticles) {
+      const isSaved = tempsavedArticles.some(
+        (savedArticle: any) => savedArticle.title === article.title
+      );
       if (!isSaved) {
         await saveUserArticles(user.userId, article);
         setSavedArticles((prev) => [...prev, article.title]);
       } else {
-        await removeUserSavedArticle(user.userId, article.title)
-        setSavedArticles((prev) => prev.filter((savedId) => savedId !== article.title))
+        await removeUserSavedArticle(user.userId, article.title);
+        setSavedArticles((prev) =>
+          prev.filter((savedId) => savedId !== article.title)
+        );
       }
     }
-  }
+  };
 
-  const getArticleContent = () => {
-    if (!article) return ""
+  const handleSimplify = async () => {
+    if (!article?.full_text || isSimplifying) return;
 
-    switch (readingMode) {
-      case "brief":
-        return article.summary || article.description || article.full_text || "No summary available."
-      case "standard":
-        return article.full_text || "No content available for this article."
-      case "deep":
-        return article.full_text
-          ? `${article.full_text}\n\n## Analysis\n${article.analysis || "No in-depth analysis available for this article."}`
-          : "No content available for this article."
-      default:
-        return article.full_text || "No content available for this article."
+    setIsSimplifying(true);
+    try {
+      const response = await fetch(`${LOCALHOST_IP}/api/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: AI_MODEL,
+          prompt: `Simplify the following article text to make it more concise and easier to understand. Use simpler language and shorter sentences while maintaining the key points.
+          
+          Article: ${article.full_text}`,
+          stop: ["<think></think>"],
+          stream: false,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Extract just the response part from the JSON
+      let simplifiedText = "";
+      if (data && data.response) {
+        simplifiedText = data.response.replace(
+          /^<think>[\s\S]*?<\/think>\s*/g,
+          ""
+        );
+      }
+
+      setAiResponse(simplifiedText);
+      setDisplayedContent(simplifiedText);
+      setIsContentModified(true);
+    } catch (err) {
+      console.error("Failed to simplify text:", err);
+      alert("Failed to simplify the article. Please try again.");
+    } finally {
+      setIsSimplifying(false);
     }
-  }
+  };
+
+  const handleExpand = async () => {
+    if (!article?.full_text || isExpanding) return;
+
+    setIsExpanding(true);
+    try {
+      const response = await fetch(`${LOCALHOST_IP}/api/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: AI_MODEL,
+          prompt: `Expand on the following article to provide more detail, context, and explanation. Make it more comprehensive while maintaining the original meaning.
+          
+          Article: ${article.full_text}`,
+          stop: ["<think></think>"],
+          stream: false,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Extract just the response part from the JSON
+      let expandedText = "";
+      if (data && data.response) {
+        expandedText = data.response.replace(
+          /^<think>[\s\S]*?<\/think>\s*/g,
+          ""
+        );
+      }
+
+      setAiResponse(expandedText);
+      setDisplayedContent(expandedText);
+      setIsContentModified(true);
+    } catch (err) {
+      console.error("Failed to expand text:", err);
+      alert("Failed to expand the article. Please try again.");
+    } finally {
+      setIsExpanding(false);
+    }
+  };
+
+  const resetToOriginal = () => {
+    setDisplayedContent(article?.full_text || null);
+    setAiResponse("");
+    setIsContentModified(false);
+  };
 
   if (isLoading) {
     return (
@@ -136,7 +243,7 @@ function ArticleDetail() {
           <Skeleton className="h-6 w-3/4" />
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -149,12 +256,15 @@ function ArticleDetail() {
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
           <p className="text-gray-600">{error}</p>
-          <Button className="mt-6 bg-[#FF7E77] hover:bg-[#FF5951]" onClick={handleBackClick}>
+          <Button
+            className="mt-6 bg-[#FF7E77] hover:bg-[#FF5951]"
+            onClick={handleBackClick}
+          >
             Return to articles
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -168,20 +278,31 @@ function ArticleDetail() {
         {article && (
           <article>
             <div className="mb-6">
-              <div className="flex items-center gap-4 mb-4">
-                <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+              <div className="flex items-center gap-2 mb-4">
+                <Badge
+                  variant="secondary"
+                  className="bg-gray-100 text-gray-700"
+                >
                   {(() => {
-                    const category = categories.find((i) => i.value === article.category)
-                    return category ? `${category.name} ${category.emoji}` : "📰 News"
+                    const category = categories.find(
+                      (i) => i.value === article.category
+                    );
+                    return category
+                      ? `${category.name} ${category.emoji} `
+                      : "📰 News";
                   })()}
                 </Badge>
-
                 <div className="flex items-center text-sm text-gray-500">
                   <Clock className="h-4 w-4 mr-1" />
                   {formatDate(article.published_date)}
                 </div>
 
-                <Button variant="outline" size="icon" onClick={handleSaveClick} className="ml-auto">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleSaveClick}
+                  className="ml-auto"
+                >
                   {savedArticles.includes(article.title) ? (
                     <BookmarkCheck className="h-5 w-5 text-green-500" />
                   ) : (
@@ -198,49 +319,97 @@ function ArticleDetail() {
                 <div className="relative h-64 md:h-96 overflow-hidden rounded-lg mb-8">
                   <Image
                     fill={true}
-                    src={article.urlToImage || "/placeholder.svg"}
+                    src={article.urlToImage}
                     alt={article.title || "Article Image"}
                     className="object-cover"
                   />
                 </div>
               )}
-
-               {/* Reading Modes */}
-               <div className="mb-6">
-                <h2 className="text-xl font-bold mb-3">Reading Modes</h2>
-                <div className="grid gap-3">
-                  <button
-                    className={`text-left p-4 rounded-lg border transition ${readingMode === "brief" ? "bg-pink-100 border-pink-200" : "bg-white hover:bg-gray-50"}`}
-                    onClick={() => setReadingMode("brief")}
+              <div className="flex justify-start mb-4 gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs border-[#FFDED9] text-[#FF7E77] hover:bg-[#FFF5F5] hover:text-[#FF5951]"
+                  onClick={handleSimplify}
+                  disabled={isSimplifying || isExpanding}
+                >
+                  {isSimplifying ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      Simplifying...
+                    </>
+                  ) : (
+                    "Simplify with ELMO AI"
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs border-[#FFDED9] text-[#FF7E77] hover:bg-[#FFF5F5] hover:text-[#FF5951]"
+                  onClick={handleExpand}
+                  disabled={isSimplifying || isExpanding}
+                >
+                  {isExpanding ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      Expanding...
+                    </>
+                  ) : (
+                    "Expand with ELMO AI"
+                  )}
+                </Button>
+                {isContentModified && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs border-gray-200 text-gray-600 hover:bg-gray-100"
+                    onClick={resetToOriginal}
                   >
-                    <span className="font-bold">Brief-</span> Quick, easy-to-read summaries with key takeaways
-                  </button>
-
-                  <button
-                    className={`text-left p-4 rounded-lg border transition ${readingMode === "standard" ? "bg-gray-100 border-gray-200" : "bg-white hover:bg-gray-50"}`}
-                    onClick={() => setReadingMode("standard")}
-                  >
-                    <span className="font-bold">Standard-</span> Our standard news articles with essential details
-                  </button>
-
-                  <button
-                    className={`text-left p-4 rounded-lg border transition ${readingMode === "deep" ? "bg-gray-100 border-gray-200" : "bg-white hover:bg-gray-50"}`}
-                    onClick={() => setReadingMode("deep")}
-                  >
-                    <span className="font-bold">Deep Dive-</span> Comprehensive analysis and in-depth reporting
-                  </button>
-                </div>
+                    Reset to original
+                  </Button>
+                )}
               </div>
-
               <div className="prose prose-lg max-w-none">
-                <Markdown remarkPlugins={[remarkGfm]}>{getArticleContent()}</Markdown>
+                {displayedContent ? (
+                  <>
+                    {aiResponse ? (
+                      <div>{aiResponse}</div>
+                    ) : (
+                      <Markdown remarkPlugins={[remarkGfm]}>
+                        {displayedContent}
+                      </Markdown>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-gray-600">
+                    {article?.full_text || "No content available."}
+                  </p>
+                )}
               </div>
+
+              {article.url && (
+                <div className="mt-12 pt-6 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    className="gap-2 text-[#FF7E77] hover:text-[#FF5951] hover:bg-[#FFF5F5] border-[#FFDED9]"
+                    asChild
+                  >
+                    <a
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View original source <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+              )}
             </div>
           </article>
         )}
       </div>
     </main>
-  )
+  );
 }
 
-export default ArticleDetail
+export default ArticleDetail;

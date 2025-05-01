@@ -1,29 +1,46 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { cn } from "@/lib/utils"
-import { Dialog } from "@headlessui/react"
-import { ArrowDownAZ, ArrowUpAZ, CalendarClock, Filter, SlidersHorizontal, X } from "lucide-react"
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { Dialog } from "@headlessui/react";
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  CalendarClock,
+  Filter,
+  SlidersHorizontal,
+  X,
+  Star,
+  Laptop,
+  TestTubeDiagonal,
+  Pill,
+  Plane,
+  Drama,
+  Paintbrush,
+  Leaf,
+  Pizza,
+  Award,
+} from "lucide-react";
 
 interface CategoryFiltersProps {
-  articles: any[]
-  onFilterChange: (category: string | null) => void
-  activeCategory: string[]
-  onSortChange?: (sortOption: string) => void
-  activeSortOption?: string
+  articles: any[];
+  onFilterChange: (category: string | null) => void;
+  activeCategory: string[];
+  onSortChange?: (sortOption: string) => void;
+  activeSortOption?: string;
 }
 
 const categories = [
-  { name: "Breaking News & Current Events 🌟", value: "general" }, //YES - General
-  { name: "Technology & Innovation 🎮", value: "technology" }, //YES
-  { name: "Science 🧪", value: "science" }, //YES
-  { name: "Health & Wellness 💊", value: "health" }, //YES
-  { name: "Travel ✈️", value: "travel" },
-  { name: "Entertainment & Media 🎭", value: "entertainment" }, //YES
-  { name: "Arts & Culture 🎨", value: "art" },
-  { name: "Opinions & Deep Dives ☘️", value: "min" },
-  { name: "Food 🍕", value: "food" },
-  { name: "Sports & Lifestyle 🏈", value: "sports" }, //YES
+  { name: "Breaking News & Current Events", value: "general", icon: Star },
+  { name: "Technology & Innovation", value: "technology", icon: Laptop },
+  { name: "Science", value: "science", icon: TestTubeDiagonal },
+  { name: "Health & Wellness", value: "health", icon: Pill },
+  { name: "Travel", value: "travel", icon: Plane },
+  { name: "Entertainment & Media", value: "entertainment", icon: Drama },
+  { name: "Arts & Culture", value: "art", icon: Paintbrush },
+  { name: "Opinions & Deep Dives", value: "min", icon: Leaf },
+  { name: "Food", value: "food", icon: Pizza },
+  { name: "Sports & Lifestyle", value: "sports", icon: Award },
 ];
 
 export default function CategoryFilters({
@@ -34,8 +51,8 @@ export default function CategoryFilters({
   activeSortOption = "newest",
 }: CategoryFiltersProps) {
   // const [categories, setCategories] = useState<string[]>([])
-  const [isOpen, setIsOpen] = useState(false)
-  const [localSortOption, setLocalSortOption] = useState(activeSortOption)
+  const [isOpen, setIsOpen] = useState(false);
+  const [localSortOption, setLocalSortOption] = useState(activeSortOption);
 
   // Extract unique categories from articles
   // useEffect(() => {
@@ -48,22 +65,23 @@ export default function CategoryFilters({
   // }, [articles])
 
   const handleSortChange = (option: string) => {
-    setLocalSortOption(option)
+    setLocalSortOption(option);
     if (onSortChange) {
-      onSortChange(option)
+      onSortChange(option);
     }
-  }
+  };
 
   const handleApply = () => {
     if (onSortChange && localSortOption !== activeSortOption) {
-      onSortChange(localSortOption)
+      onSortChange(localSortOption);
     }
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
 
-  if (categories.length === 0) return null
+  if (categories.length === 0) return null;
 
-  const hasActiveFilters = activeCategory !== null || activeSortOption !== "newest"
+  const hasActiveFilters =
+    activeCategory !== null || activeSortOption !== "newest";
 
   return (
     <div className="max-w-2xl mx-auto mb-8">
@@ -73,7 +91,7 @@ export default function CategoryFilters({
           "px-4 py-2 rounded-md text-sm font-medium shadow transition flex items-center gap-2",
           hasActiveFilters
             ? "bg-[#FF7E77] text-white hover:bg-[#ff5c50]"
-            : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200",
+            : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
         )}
       >
         <SlidersHorizontal className="w-4 h-4" />
@@ -85,14 +103,23 @@ export default function CategoryFilters({
         )}
       </button>
 
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)} className="relative z-50">
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity" aria-hidden="true" />
+      <Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="relative z-50"
+      >
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+          aria-hidden="true"
+        />
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-md rounded-xl bg-white shadow-xl transition-all transform">
             <div className="border-b border-gray-100">
               <div className="flex justify-between items-center p-4">
-                <Dialog.Title className="text-lg font-semibold text-gray-900">Filters</Dialog.Title>
+                <Dialog.Title className="text-lg font-semibold text-gray-900">
+                  Filters
+                </Dialog.Title>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="rounded-full p-1 hover:bg-gray-100 transition-colors"
@@ -115,26 +142,30 @@ export default function CategoryFilters({
                       "px-4 py-2 rounded-full text-sm font-medium transition-all",
                       activeCategory.length === 0
                         ? "bg-[#FF7E77] text-white shadow-sm"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     )}
                   >
                     All
                   </button>
 
-                  {categories.map((category) => (
-                    <button
-                      key={category.name}
-                      onClick={() => onFilterChange(category.value)}
-                      className={cn(
-                        "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                        activeCategory.includes(category.value)
-                          ? "bg-[#FF7E77] text-white shadow-sm"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200",
-                      )}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
+                  {categories.map((category) => {
+                    const Icon = category.icon;
+                    return (
+                      <button
+                        key={category.name}
+                        onClick={() => onFilterChange(category.value)}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2",
+                          activeCategory.includes(category.value)
+                            ? "bg-[#FF7E77] text-white shadow-sm"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {category.name}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -155,7 +186,9 @@ export default function CategoryFilters({
                     />
                     <div className="flex items-center gap-2">
                       <ArrowDownAZ className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-700">Newest first</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        Newest first
+                      </span>
                     </div>
                   </label>
 
@@ -170,7 +203,9 @@ export default function CategoryFilters({
                     />
                     <div className="flex items-center gap-2">
                       <ArrowUpAZ className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-700">Oldest first</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        Oldest first
+                      </span>
                     </div>
                   </label>
                 </div>
@@ -195,5 +230,5 @@ export default function CategoryFilters({
         </div>
       </Dialog>
     </div>
-  )
+  );
 }
