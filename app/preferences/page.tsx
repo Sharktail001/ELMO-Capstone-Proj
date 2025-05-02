@@ -68,38 +68,41 @@ function ReturningUsers() {
 
   return (
     <main className="flex flex-col items-center rounded-lg px-4 md:px-10 py-6 min-h-screen bg-gradient-to-b from-rose-50 via-white to-white">
-    <div className="flex flex-col h-full px-6 py-8">
-      {/* Header */}
-      <h1 className="text-4xl font-bold text-center mb-4">Hello, {user.name}!</h1>
-      {/* Subheader */}
-      <h2 className="text-xl font-semibold text-center mb-1">
-        What kind of articles are you looking for today?
-      </h2>
-      <p className="text-md text-gray-600 italic text-center mb-6">
-        Select at least one or click{" "}
-        <Link href="/explore" className="text-blue-500 underline">
-          here
-        </Link>{" "}
-        to go to the homepage.
-      </p>
+      <div className="flex flex-col h-full px-6 py-8">
+        {/* Header */}
+        <h1 className="text-4xl font-bold text-center mb-4">
+          Hello, {user.name}!
+        </h1>
+        {/* Subheader */}
+        <h2 className="text-xl font-semibold text-center mb-1">
+          What kind of articles are you looking for today?
+        </h2>
+        <p className="text-md text-gray-600 italic text-center mb-6">
+          Select at least one or click{" "}
+          <Link href="/explore" className="text-blue-500 underline">
+            here
+          </Link>{" "}
+          to go to the homepage.
+        </p>
 
-      {/* Category Buttons */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-3">
-        {categories.map((category, index) => (
-          <button
-            key={index}
-            onClick={() => handleCategoryClick(category.value)}
-            className={`flex justify-between items-center w-full px-4 py-3 border rounded-lg shadow-sm transition duration-200 text-lg font-medium ${
-              selectedPreferences.includes(category.value)
-                ? "bg-blue-100 border-blue-500"
-                : "bg-white hover:bg-gray-100"
-            }`}
-          >
-            {category.name} <span className="text-xl">{category.emoji}</span>
-          </button>
-        ))}
+        {/* Category Buttons */}
+        <div className="w-full max-w-md mx-auto flex flex-col gap-3">
+          {categories.map((category, index) => (
+            <button
+              key={index}
+              onClick={() => handleCategoryClick(category.value)}
+              className={`flex justify-between items-center w-full px-4 py-3 border rounded-lg shadow-sm transition duration-200 text-lg font-medium ${
+                selectedPreferences.includes(category.value)
+                  ? "bg-blue-100 border-blue-500"
+                  : "bg-white hover:bg-gray-100"
+              }`}
+            >
+              {category.name} <span className="text-xl">{category.emoji}</span>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 

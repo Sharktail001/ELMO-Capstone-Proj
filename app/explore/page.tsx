@@ -67,6 +67,24 @@ function Explore() {
   const [sortOption, setSortOption] = useState("newest");
   const [preferencesApplied, setPreferencesApplied] = useState(false);
   const [savedArticles, setSavedArticles] = useState<string[]>([]);
+  const [GeneratedArticles, setGeneratedArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchGeneratedArticles = async () => {
+      if (user && activeTab === "generated") {
+        try {
+          const data = await getTableItems("ELMO-GeneratedArticles-Table"); // Replace with your actual table name
+          const filtered =
+            data.filter((article) => article.userId === user.userId) || [];
+          setGeneratedArticles(filtered);
+        } catch (err) {
+          console.error("Failed to load generated articles", err);
+        }
+      }
+    };
+
+    fetchGeneratedArticles();
+  }, [activeTab, user]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -178,6 +196,23 @@ function Explore() {
     fetchSavedArticles();
   }, [user]);
 
+  useEffect(() => {
+    const fetchGeneratedArticles = async () => {
+      if (user && activeTab === "generated") {
+        try {
+          const data = await getTableItems("ELMO-GeneratedArticles-Table"); // Replace with your actual table name
+          const filtered = data.filter(
+            (article) => article.userId === user.userId
+          );
+          setGeneratedArticles(filtered);
+        } catch (err) {
+          console.error("Failed to load generated articles", err);
+        }
+      }
+    };
+
+    fetchGeneratedArticles();
+  }, [activeTab, user]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -237,6 +272,30 @@ function Explore() {
     } finally {
       setIsLoading(false);
       generatingRef.current = false;
+    }
+  };
+
+  const generateNewArticle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt.trim()) return;
+
+    if (!user) return;
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, userId: user.userId }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        router.push(`/explore/${encodeURIComponent(data.title)}`);
+      } else {
+        console.error("Generation failed", data.error);
+      }
+    } catch (err) {
+      console.error("Error generating new article", err);
     }
   };
 
@@ -369,7 +428,9 @@ function Explore() {
         <SearchBar
           prompt={prompt}
           setPrompt={setPrompt}
-          handleSubmit={handleSubmit}
+          handleSubmit={
+            activeTab === "search" ? handleSubmit : generateNewArticle
+          }
           isLoading={isLoading}
         />
 
@@ -395,12 +456,7 @@ function Explore() {
         >
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
             <TabsTrigger value="search">Search Results</TabsTrigger>
-            <TabsTrigger
-              value="generated"
-              disabled={!processedArticle && !isLoading}
-            >
-              Generated Article
-            </TabsTrigger>
+            <TabsTrigger value="generated">Generated Articles</TabsTrigger>
           </TabsList>
 
           <TabsContent value="generated" className="space-y-6">
@@ -413,6 +469,21 @@ function Explore() {
                 setExpandedThought={setExpandedThought}
                 isGenerating={isLoading}
               />
+            )}
+
+            {!isLoading && processedArticle === "" && (
+              <>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Your Generated Articles
+                </h2>
+                <div className="border-b border-gray-200"></div>
+                <ArticleGrid
+                  articles={GeneratedArticles}
+                  handleArticleClick={handleArticleClick}
+                  savedArticles={savedArticles}
+                  handleSaveClick={handleSaveClick}
+                />
+              </>
             )}
           </TabsContent>
 

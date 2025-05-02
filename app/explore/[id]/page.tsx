@@ -207,8 +207,11 @@ function ArticleDetail() {
         );
       }
 
-      setAiResponse(expandedText);
-      setDisplayedContent(expandedText);
+      // Combine expanded text with original text
+      const combinedText = `${expandedText}\n\n---\n\n**Original Article:**\n\n${article.full_text}`;
+
+      setAiResponse(combinedText);
+      setDisplayedContent(combinedText);
       setIsContentModified(true);
     } catch (err) {
       console.error("Failed to expand text:", err);
