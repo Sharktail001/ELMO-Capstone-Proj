@@ -52,6 +52,7 @@ const SavedArticles = () => {
   }
 
   return (
+    <main className="flex flex-col items-center rounded-lg px-4 md:px-10 py-6 min-h-screen bg-gradient-to-b from-rose-50 via-white to-white">
     <div className="container max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Saved Articles</h1>
       {savedArticles.length > 0 ? (
