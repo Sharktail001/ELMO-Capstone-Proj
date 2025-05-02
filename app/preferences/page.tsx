@@ -100,6 +100,7 @@ function ReturningUsers() {
         ))}
       </div>
     </div>
+  </main>
   );
 }
 
