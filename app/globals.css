@@ -69,6 +69,9 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --font-body: 'Inter', sans-serif;
+    --font-title: 'DM Serif Display', serif;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -143,5 +146,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
+  h1, h2, h3, h4, h5, h6, .font-title {
+    font-family: var(--font-title);
+  }  
 }
