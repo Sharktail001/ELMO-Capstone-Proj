@@ -27,7 +27,7 @@ const mainNavItems = [
   },
   {
     title: "Preferences",
-    url: "/onboarding",
+    url: "/preferences",
     icon: Bolt,
     isActive: true,
   },

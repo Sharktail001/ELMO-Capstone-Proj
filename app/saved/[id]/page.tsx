@@ -268,7 +268,7 @@ function ArticleDetail() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 pt-6">
+    <main className="h-full min-h-screen bg-gradient-to-b from-rose-50 via-rose-100 to-rose-200 pt-6">
       <div className="container max-w-4xl mx-auto px-4 py-8">
         <Button variant="ghost" className="mb-6" onClick={handleBackClick}>
           <ChevronLeft className="h-4 w-4 mr-2" />
