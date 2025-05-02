@@ -15,6 +15,7 @@ import {
   BookmarkCheck,
   ExternalLink,
   Loader2,
+  ArrowDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +54,7 @@ function ArticleDetail() {
   const [isExpanding, setIsExpanding] = useState(false);
   const [aiResponse, setAiResponse] = useState<string>("");
   const [isContentModified, setIsContentModified] = useState(false);
+  const [expandedContent, setExpandedContent] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -130,6 +132,18 @@ function ArticleDetail() {
     if (!article?.full_text || isSimplifying) return;
 
     setIsSimplifying(true);
+
+    // Scroll to the top of the article content when simplifying
+    setTimeout(() => {
+      const articleContentTop = document.getElementById("article-content");
+      if (articleContentTop) {
+        articleContentTop.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 100);
+
     try {
       const response = await fetch(`${LOCALHOST_IP}/api/generate`, {
         method: "POST",
@@ -163,6 +177,7 @@ function ArticleDetail() {
 
       setAiResponse(simplifiedText);
       setDisplayedContent(simplifiedText);
+      setExpandedContent(null);
       setIsContentModified(true);
     } catch (err) {
       console.error("Failed to simplify text:", err);
@@ -176,6 +191,23 @@ function ArticleDetail() {
     if (!article?.full_text || isExpanding) return;
 
     setIsExpanding(true);
+
+    // Create a placeholder for the expanded content to scroll to
+    setExpandedContent("Loading additional content...");
+
+    // Scroll to the expanded content area
+    setTimeout(() => {
+      const expandedContentArea = document.getElementById(
+        "expanded-content-area"
+      );
+      if (expandedContentArea) {
+        expandedContentArea.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 100);
+
     try {
       const response = await fetch(`${LOCALHOST_IP}/api/generate`, {
         method: "POST",
@@ -184,7 +216,7 @@ function ArticleDetail() {
         },
         body: JSON.stringify({
           model: AI_MODEL,
-          prompt: `Expand on the following article to provide more detail, context, and explanation. Make it more comprehensive while maintaining the original meaning.
+          prompt: `Expand on the following article to provide more detail, context, and explanation. Focus on adding more information that would complement the original article. Start with "Additional Context and Analysis:" and then provide your expanded content. Make it comprehensive while complementing the original content.
           
           Article: ${article.full_text}`,
           stop: ["<think></think>"],
@@ -207,12 +239,13 @@ function ArticleDetail() {
         );
       }
 
-      setAiResponse(expandedText);
-      setDisplayedContent(expandedText);
+      // Keep original content and set expanded content separately
+      setExpandedContent(expandedText);
       setIsContentModified(true);
     } catch (err) {
       console.error("Failed to expand text:", err);
       alert("Failed to expand the article. Please try again.");
+      setExpandedContent(null);
     } finally {
       setIsExpanding(false);
     }
@@ -220,6 +253,7 @@ function ArticleDetail() {
 
   const resetToOriginal = () => {
     setDisplayedContent(article?.full_text || null);
+    setExpandedContent(null);
     setAiResponse("");
     setIsContentModified(false);
   };
@@ -369,21 +403,48 @@ function ArticleDetail() {
                   </Button>
                 )}
               </div>
-              <div className="prose prose-lg max-w-none">
-                {displayedContent ? (
-                  <>
-                    {aiResponse ? (
-                      <div>{aiResponse}</div>
-                    ) : (
-                      <Markdown remarkPlugins={[remarkGfm]}>
-                        {displayedContent}
-                      </Markdown>
-                    )}
-                  </>
+              <div id="article-content" className="prose prose-lg max-w-none">
+                {/* Main content area */}
+                {isSimplifying ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="h-6 w-6 text-[#FF7E77] animate-spin mr-2" />
+                    <p className="text-[#FF5951]">Simplifying content...</p>
+                  </div>
+                ) : aiResponse ? (
+                  <div>{aiResponse}</div>
                 ) : (
-                  <p className="text-gray-600">
-                    {article?.full_text || "No content available."}
-                  </p>
+                  <Markdown remarkPlugins={[remarkGfm]}>
+                    {displayedContent || "No content available."}
+                  </Markdown>
+                )}
+
+                {/* Expanded content area */}
+                {expandedContent && (
+                  <div
+                    id="expanded-content-area"
+                    className="mt-8 pt-6 border-t border-gray-200"
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <Badge className="bg-[#FFDED9] text-[#FF5951]">
+                        ELMO AI Expansion
+                      </Badge>
+                      <ArrowDown className="h-4 w-4 text-[#FF7E77]" />
+                    </div>
+                    <div className="bg-rose-50 p-4 rounded-lg">
+                      {isExpanding ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="h-6 w-6 text-[#FF7E77] animate-spin mr-2" />
+                          <p className="text-[#FF5951]">
+                            Generating additional content...
+                          </p>
+                        </div>
+                      ) : (
+                        <Markdown remarkPlugins={[remarkGfm]}>
+                          {expandedContent}
+                        </Markdown>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
