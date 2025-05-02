@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { Hub } from '@aws-amplify/core';
+import { signInWithRedirect, getCurrentUser, AuthUser } from "aws-amplify/auth";
+// import { googleSignIn } from '../lib/amplifyConfig'; // Adjust the import path as necessary
 
 export function LoginForm({
   className,
@@ -22,6 +25,42 @@ export function LoginForm({
   const { login } = useAuth();
 
   const router = useRouter();
+
+  // useEffect(() => {
+  //   const listener = ({ payload }: { payload: { event: string } }) => {
+  //     if (payload.event === 'signIn') {
+  //       login();
+  //       router.push('/explore');
+  //     }
+  //   };
+
+  //   Hub.listen('auth', listener);
+  //   const unsubscribe = Hub.listen('auth', listener);
+  //   return () => unsubscribe();
+  // }, []);
+
+  Hub.listen("auth", async ({ payload }) => {
+    switch (payload.event) {
+      case "signInWithRedirect":
+        const user = await getCurrentUser();
+        console.log(user.username);
+        break;
+      case "signInWithRedirect_failure":
+        // handle sign in failure
+        break;
+      case "customOAuthState":
+        const state = payload.data; // this will be customState provided on signInWithRedirect function
+        console.log(state);
+        break;
+    }
+  });
+
+  const handleSignInClick = async(customState: string) => {
+    signInWithRedirect({
+      provider: "Google",
+      customState
+    });
+  }
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -118,12 +157,45 @@ export function LoginForm({
             Or continue with
           </span>
         </div>
-        <Button variant="outline" className="w-full">
+        {/* <Button variant="outline" className="w-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 48 48"
             width="24px"
             height="24px"
+          >
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.9 0 6.6 1.6 8.1 2.9l6-6C34.8 3.5 29.9 1 24 1 14.8 1 7.1 6.6 3.9 14.4l7.1 5.5C12.8 14.1 17.9 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3.2-2.5 5.9-5.3 7.7l7.1 5.5c4.1-3.8 6.5-9.4 6.5-15.7z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.9 28.9c-1-3.2-1-6.6 0-9.8l-7.1-5.5C1.1 17.1 0 20.5 0 24s1.1 6.9 3.8 10.4l7.1-5.5z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 47c5.9 0 10.8-1.9 14.4-5.1l-7.1-5.5c-2 1.4-4.5 2.2-7.3 2.2-6.1 0-11.2-4.1-13-9.7l-7.1 5.5C7.1 41.4 14.8 47 24 47z"
+            />
+            <path fill="none" d="M0 0h48v48H0z" />
+          </svg>
+          Login with Google
+        </Button> */}
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => handleSignInClick("customState")}
+          // onClick={async () => {googleSignIn();}}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 48 48"
+            width="24px"
+            height="24px"
+            className="mr-2"
           >
             <path
               fill="#EA4335"

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   title: "Elmo",
   description: "Big Stories Little Details",
   icons: {
-    icon: "/favicon.ico",
+    icon: "app/favicon.ico",
   },
 };
 

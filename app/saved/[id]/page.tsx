@@ -7,6 +7,7 @@ import {
   getUserSavedArticles,
   saveUserArticles,
   removeUserSavedArticle,
+  getUserSavedArticle,
 } from "@/lib/amplifyConfig";
 import {
   ChevronLeft,
@@ -57,11 +58,13 @@ function ArticleDetail() {
   useEffect(() => {
     const fetchArticle = async () => {
       setIsLoading(true);
+      if (!user) return;
       try {
-        const data = await getTableItemById(
-          "ELMO-Articles-Table",
-          decodeURIComponent(id as string)
-        );
+        // const data = await getTableItemById(
+        //   "ELMO-Articles-Table",
+        //   decodeURIComponent(id as string)
+        // );
+        const data = await getUserSavedArticle(user.userId, decodeURIComponent(id as string));
         if (data) {
           setArticle(data);
           setDisplayedContent(data.full_text || null);
