@@ -2,7 +2,7 @@
 
 import type * as React from "react"
 import { useEffect, useState } from "react"
-import { Frame, Map, PieChart, Settings2, SquareTerminal, Newspaper, Search } from "lucide-react"
+import { Frame, Map, PieChart, Settings2, SquareTerminal } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { NavProjects } from "@/components/nav-projects"
@@ -16,10 +16,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  SidebarInput,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { useAuth } from "@/lib/AuthContext" // Import useAuth hook
+import { useAuth } from "@/lib/AuthContext"
 
 const data = {
   user: {
@@ -34,18 +33,9 @@ const data = {
       icon: SquareTerminal,
       isActive: true,
       items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
+        { title: "History", url: "#" },
+        { title: "Starred", url: "#" },
+        { title: "Settings", url: "#" },
       ],
     },
     {
@@ -53,67 +43,42 @@ const data = {
       url: "#",
       icon: Settings2,
       items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
+        { title: "General", url: "#" },
+        { title: "Team", url: "#" },
+        { title: "Billing", url: "#" },
+        { title: "Limits", url: "#" },
       ],
     },
   ],
   navSecondary: [],
   projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
+    { name: "Design Engineering", url: "#", icon: Frame },
+    { name: "Sales & Marketing", url: "#", icon: PieChart },
+    { name: "Travel", url: "#", icon: Map },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { isAuthenticated } = useAuth(); // Get authentication state
-  const [isClient, setIsClient] = useState(false);
+  const { isAuthenticated } = useAuth()
+  const [isClient, setIsClient] = useState(false)
 
-  // Wait for the component to mount before checking authentication
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    setIsClient(true)
+  }, [])
 
-  if (!isClient || !isAuthenticated) {
-    return null; // Do not render sidebar if the user is not authenticated
-  }
+  if (!isClient || !isAuthenticated) return null
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="inset" {...props} className="font-body">
       <SidebarHeader className="pb-0">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="/explore" className="flex items-center gap-2">
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate text-2xl font-bold tracking-tighter">ELMO</span>
+                  <span className="truncate text-2xl tracking-tighter font-title"
+                   style={{ fontFamily: "var(--font-title)" }}
+                  >ELMO</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -138,5 +103,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }
